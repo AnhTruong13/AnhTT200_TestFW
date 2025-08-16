@@ -7,7 +7,7 @@ test.describe('Signup - Major Browsers', () => {
     test('should sign up a new user', async ({ page }) => {
         const signupPage = new SignupPage(page);
         await signupPage.goto();
-        const name = 'TestUser';
+        const name = `TestUser_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
         const email = `user_${Date.now()}_${Math.floor(Math.random() * 10000)}@example.com`;
         const password = 'TestPassword123!';
         await signupPage.fillSignupForm(name, email);
