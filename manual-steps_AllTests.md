@@ -1,3 +1,4 @@
+
 # Manual Test Steps for All Automated Scenarios
 
 ## HomePage Test
@@ -27,3 +28,17 @@
 6. Verify that "Logged in as <username>" is visible.
 7. Click "Logout".
 8. Verify that you are redirected to the login page and "Signup / Login" link is visible.
+
+## Delete Account Test
+1. Open browser (Chrome, Firefox, Safari, Edge, or branded Chrome/Edge).
+2. Go to https://www.automationexercise.com/
+3. Click on "Signup / Login".
+4. Enter a random user name and email address in the signup form.
+5. Click "Signup".
+6. Fill in all required account information fields (gender, password, date of birth, first name, last name, address, country, state, city, zipcode, mobile number).
+7. Click "Create Account".
+8. Verify that "Account Created!" message appears.
+9. Click on "Signup / Login" again and log in with the newly created account.
+10. Verify that "Logged in as <username>" is visible.
+11. Click "Delete Account".
+12. Verify that "Account Deleted!" message appears.
