@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - heading "Web server is returning an unknown error Error code 520" [level=1]
+  - text: Visit
+  - link "cloudflare.com":
+    - /url: https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&utm_campaign=www.automationexercise.com
+  - text: for more information. 2025-08-16 12:30:43 UTC
+- text: You
+- heading "Browser" [level=3]
+- text: Working
+- link:
+  - /url: https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&utm_campaign=www.automationexercise.com
+- text: Hong Kong
+- heading "Cloudflare" [level=3]:
+  - link "Cloudflare":
+    - /url: https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&utm_campaign=www.automationexercise.com
+- text: Working www.automationexercise.com
+- heading "Host" [level=3]
+- text: Error
+- heading "What happened?" [level=2]
+- paragraph: There is an unknown connection issue between Cloudflare and the origin web server. As a result, the web page can not be displayed.
+- heading "What can I do?" [level=2]
+- heading "If you are a visitor of this website:" [level=3]
+- paragraph: Please try again in a few minutes.
+- heading "If you are the owner of this website:" [level=3]
+- paragraph:
+  - text: There is an issue between Cloudflare's cache and your origin web server. Cloudflare monitors for these errors and automatically investigates the cause. To help support the investigation, you can pull the corresponding error log from your web server and submit it our support team. Please include the Ray ID (which is at the bottom of this error page).
+  - link "Additional troubleshooting resources":
+    - /url: https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-520/
+  - text: .
+- paragraph:
+  - text: "Cloudflare Ray ID:"
+  - strong: 9700f1ccbea7a8ad
+  - text: "• Your IP:"
+  - button "Click to reveal"
+  - text: • Performance & security by
+  - link "Cloudflare":
+    - /url: https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&utm_campaign=www.automationexercise.com
+```
