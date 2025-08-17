@@ -10,6 +10,11 @@ node_modules/
 /allure-results/
 /allure-report/
 
+# Evidence and Test Artifacts
+/Evidence/video/
+/Evidence/screenshots/
+/Evidence/traces/
+
 # Temporary files
 *.log
 *.tmp

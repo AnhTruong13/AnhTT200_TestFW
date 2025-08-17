@@ -1,33 +1,201 @@
 # Playwright + TypeScript E2E Testing Framework
 
-This project uses [Playwright](https://playwright.dev/) and TypeScript for end-to-end testing of [Automation Exercise](https://www.automationexercise.com/).
+This comprehensive test automation framework uses [Playwright](https://playwright.dev/) and TypeScript for end-to-end testing of [Automation Exercise](https://www.automationexercise.com/).
 
-## Getting Started
+## 🚀 Features
+
+- **Page Object Model (POM)** - Organized, maintainable test architecture
+- **Playwright Fixtures** - Custom fixtures for enhanced test setup
+- **Video Recording** - Automatic video capture on test failures (1280x720 WebM)
+- **Advanced Screenshots** - Smart handling of large pages with automatic fallback
+- **Allure Reporting** - Rich HTML reports with visual evidence
+- **Evidence Collection** - Organized storage of test artifacts
+- **Multi-Browser Support** - Chromium, Firefox, Safari, Edge, Chrome
+- **Responsive Testing** - Mobile, tablet, and desktop viewport testing
+- **Mixed Content Handling** - Graceful handling of HTTPS/HTTP warnings
+- **Error Recovery** - Robust error handling and automatic fallbacks
+
+## 🛠️ Getting Started
 
 ### Install dependencies
-```
+```bash
 npm install
 ```
 
-### Run all tests
-```
-npx playwright test
-```
-
-### Run tests in UI mode
-```
-npx playwright test --ui
+### Install Playwright browsers
+```bash
+npm run install:browsers
 ```
 
-### Project Structure
-- `tests/` - Contains E2E test files
-- `playwright.config.ts` - Playwright configuration
-- `.github/workflows/playwright.yml` - GitHub Actions CI workflow
+## 📋 Test Commands
 
-## Sample Test
-A sample test is provided in `tests/example.spec.ts`. You can create new test files in the `tests/` folder.
+### Basic Test Execution
+```bash
+# Run all tests
+npm test
 
-## Resources
+# Run tests with video recording
+npm run test:video
+
+# Run tests in headed mode
+npm run test:headed
+
+# Debug tests
+npm run test:debug
+```
+
+### Specific Test Suites
+```bash
+# Run homepage tests only
+npm run test:homepage
+
+# Run integration tests
+npm run test:integration
+```
+
+### Reporting & Evidence
+```bash
+# Generate and serve Allure reports
+npm run report
+
+# Generate static Allure report
+npm run report:generate
+
+# Open static Allure report
+npm run report:open
+
+# Clean evidence directories
+npm run clean:evidence
+```
+
+## 📁 Project Structure
+```
+├── Evidence/                    # Test artifacts and evidence
+│   ├── video/                   # Test execution videos (WebM format)
+│   ├── screenshots/            # Test screenshots with fallback handling
+│   ├── traces/                 # Playwright traces for debugging
+│   └── README.md               # Evidence documentation
+├── page-objects/               # Page Object Model classes
+│   ├── BasePage.ts             # Base page with common functionality
+│   ├── HomePage.ts             # Homepage specific methods and locators
+│   └── ProductsPage.ts         # Products page methods and locators
+├── tests/                      # Test specifications
+│   ├── homepage.spec.ts        # Homepage functionality tests (11 tests)
+│   └── homepage-integration.spec.ts  # Integration tests (4 tests)
+├── utils/                      # Utility functions and helpers
+│   ├── TestUtils.ts            # Screenshot, evidence, and test utilities
+│   ├── fixtures.ts             # Custom Playwright fixtures
+│   └── screenshot-examples.md  # Screenshot utility documentation
+├── allure-results/             # Raw Allure test results (JSON)
+├── allure-report/              # Generated Allure HTML reports
+├── manual-steps_AllTests.md    # Manual testing steps documentation
+├── HOMEPAGE_TESTS_README.md    # Detailed test documentation
+└── playwright.config.ts       # Playwright configuration
+```
+
+## 🎯 Test Coverage
+
+### Homepage Tests (11 tests)
+- Homepage loading and title verification
+- Navigation menu presence and functionality
+- Main content sections visibility
+- Carousel functionality with fallback handling
+- Newsletter subscription testing
+- Navigation links comprehensive verification
+- Categories and brands section validation
+- Responsive design testing (mobile, tablet, desktop)
+- Scroll to top functionality with enhanced reliability
+- Page performance and loading metrics
+- Console error monitoring and handling
+
+### Integration Tests (4 tests)
+- Complete user journey (Homepage → Products → Product Details)
+- Homepage responsiveness across viewports with performance monitoring
+- Interactive elements comprehensive testing
+- Navigation links verification with strict mode handling
+
+## 🔧 Recent Enhancements (August 2025)
+
+### Video Recording System
+- **Format**: WebM files at 1280x720 resolution
+- **Mode**: `retain-on-failure` for efficient storage
+- **Location**: `Evidence/video/` with organized subdirectories
+- **Integration**: Automatic attachment to Allure reports
+
+### Screenshot Improvements
+- **Size Limit Fix**: Automatic fallback when pages exceed 32,767px
+- **Custom Options**: Support for clipping, quality settings, viewport vs full-page
+- **Large Page Handling**: Sectioned screenshots for extremely long pages
+- **Error Recovery**: Graceful fallback to viewport screenshots
+
+### Test Stability Enhancements
+- **Mixed Content Handling**: Graceful handling of HTTPS/HTTP warnings
+- **Strict Mode Fixes**: Specific CSS selectors to avoid element ambiguity
+- **Page Loading**: Improved from `networkidle` to `domcontentloaded` with fallbacks
+- **Carousel Testing**: Multi-pattern selector matching for different implementations
+- **Scroll Testing**: Enhanced reliability with position tolerance and JavaScript fallback
+
+### Reporting & Documentation
+- **Allure Integration**: Rich HTML reports with visual evidence
+- **Evidence Organization**: Structured storage of test artifacts
+- **Manual Steps**: Updated comprehensive testing procedures
+- **Error Context**: Detailed failure information with markdown documentation
+
+## 📊 Browser Support
+- **Chromium** (Primary)
+- **Firefox**
+- **Safari** (WebKit)
+- **Microsoft Edge**
+- **Google Chrome**
+
+## 🎪 Sample Test
+Homepage tests demonstrate comprehensive coverage:
+
+```typescript
+test('Verify homepage loads successfully', async ({ homePage }) => {
+    await allure.epic('Homepage');
+    await allure.feature('Homepage Basic Functionality');
+    await allure.story('Page Loading');
+    
+    await homePage.verifyHomePageIsVisible();
+    await homePage.verifyPageTitle('Automation Exercise');
+    await TestUtils.takeScreenshot(page, 'homepage-loaded');
+});
+```
+
+## 📚 Documentation
+- **[Manual Test Steps](manual-steps_AllTests.md)** - Comprehensive manual testing procedures
+- **[Homepage Tests Documentation](HOMEPAGE_TESTS_README.md)** - Detailed test specifications
+- **[Evidence Directory Guide](Evidence/README.md)** - Test artifacts documentation
+- **[Screenshot Utilities](utils/screenshot-examples.md)** - Screenshot handling examples
+
+## 🚨 Known Issues & Solutions
+
+### Mixed Content Warnings
+Browser console may show mixed content warnings for Google Fonts (HTTP on HTTPS). These are harmless and handled gracefully by the framework.
+
+### Screenshot Size Limits  
+Framework automatically handles "Cannot take screenshot larger than 32767 pixels" errors with viewport fallback.
+
+### Carousel Control Detection
+Tests use multiple selector patterns to handle different carousel implementations with automatic fallbacks.
+
+## 🤝 Contributing
+1. Follow the Page Object Model pattern
+2. Add appropriate Allure annotations (@epic, @feature, @story)
+3. Include error handling and recovery mechanisms
+4. Document new utilities in the utils directory
+5. Update manual steps for new test scenarios
+
+## 📝 License
+This project is for educational and testing purposes.
+
+---
+
+*Framework last updated: August 17, 2025*
+*Total tests: 15 (11 homepage + 4 integration)*
+*Browsers supported: 5 (Chromium, Firefox, Safari, Edge, Chrome)*
+*Evidence types: 3 (Videos, Screenshots, Traces)*
 - [Playwright Docs](https://playwright.dev/docs/intro)
 - [TypeScript Docs](https://www.typescriptlang.org/docs/)
 
