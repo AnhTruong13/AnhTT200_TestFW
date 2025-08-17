@@ -13,7 +13,7 @@
     "report": "npx allure serve allure-results",
     "report:generate": "npx allure generate allure-results --output allure-report --clean",
     "report:open": "npx allure open allure-report",
-    "clean:evidence": "Remove-Item -Recurse -Force Evidence\\video\\* -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force Evidence\\screenshots\\* -ErrorAction SilentlyContinue",
+    "clean:evidence": "powershell -Command \"Remove-Item -Recurse -Force Evidence\\video\\* -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force Evidence\\screenshots\\* -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force Evidence\\traces\\* -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force allure-results\\* -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force test-results\\* -ErrorAction SilentlyContinue\"",
     "install:browsers": "npx playwright install"
   },
   "keywords": [],

@@ -7,8 +7,8 @@ This comprehensive test automation framework uses [Playwright](https://playwrigh
 - **Page Object Model (POM)** - Organized, maintainable test architecture
 - **Playwright Fixtures** - Custom fixtures for enhanced test setup
 - **Video Recording** - Automatic video capture on test failures (1280x720 WebM)
-- **Advanced Screenshots** - Smart handling of large pages with automatic fallback
-- **Allure Reporting** - Rich HTML reports with visual evidence
+- **Smart Screenshots** - Viewport screenshots to avoid size limits (only on failure)
+- **Allure + HTML Reporting** - Rich reports with visual evidence and interactive features
 - **Evidence Collection** - Organized storage of test artifacts
 - **Multi-Browser Support** - Chromium, Firefox, Safari, Edge, Chrome
 - **Responsive Testing** - Mobile, tablet, and desktop viewport testing
@@ -67,7 +67,7 @@ npm run report:generate
 # Open static Allure report
 npm run report:open
 
-# Clean evidence directories
+# Clean all evidence directories (videos, screenshots, traces, results)
 npm run clean:evidence
 ```
 
@@ -134,17 +134,31 @@ npm run clean:evidence
 
 ## 🔧 Recent Enhancements (August 2025)
 
+### Configuration Improvements
+- **Dual Reporter Setup**: Both Allure and HTML reports generated simultaneously
+- **Smart Screenshot Strategy**: Viewport screenshots only on failure to prevent size limit issues
+- **Enhanced Video Recording**: 1280x720 resolution, retain-on-failure mode
+- **Output Directory**: Centralized evidence collection in `Evidence/video/`
+- **Cross-Browser Testing**: 5 browsers (Chromium, Firefox, Safari, Edge, Chrome)
+
+### Signup Page Test Suite (NEW)
+- **Complete POM Implementation**: SignupPage with comprehensive form interactions
+- **10 Test Scenarios**: Registration, login, validation, error handling, UI testing
+- **Enhanced Fixtures**: Added signupPage fixture for dependency injection
+- **Modern Allure Integration**: Fixed deprecation warnings with allure-js-commons
+
 ### Video Recording System
 - **Format**: WebM files at 1280x720 resolution
 - **Mode**: `retain-on-failure` for efficient storage
 - **Location**: `Evidence/video/` with organized subdirectories
 - **Integration**: Automatic attachment to Allure reports
 
-### Screenshot Improvements
-- **Size Limit Fix**: Automatic fallback when pages exceed 32,767px
-- **Custom Options**: Support for clipping, quality settings, viewport vs full-page
-- **Large Page Handling**: Sectioned screenshots for extremely long pages
-- **Error Recovery**: Graceful fallback to viewport screenshots
+### Screenshot & Evidence Improvements
+- **Viewport Screenshots**: Prevents 32,767px size limit issues with `fullPage: false`
+- **Failure-Only Capture**: Screenshots taken only on test failures for efficiency
+- **Custom Screenshot Utils**: Enhanced TestUtils with multiple screenshot options
+- **Evidence Cleanup**: Improved npm script for cleaning all test artifacts
+- **Organized Storage**: Structured directories for videos, screenshots, traces, and reports
 
 ### Test Stability Enhancements
 - **Mixed Content Handling**: Graceful handling of HTTPS/HTTP warnings
@@ -182,21 +196,25 @@ test('Verify homepage loads successfully', async ({ homePage }) => {
 ```
 
 ## 📚 Documentation
-- **[Manual Test Steps](manual-steps_AllTests.md)** - Comprehensive manual testing procedures
-- **[Homepage Tests Documentation](HOMEPAGE_TESTS_README.md)** - Detailed test specifications
+- **[Manual Test Steps](manual-steps_AllTests.md)** - Comprehensive manual testing procedures  
+- **[Homepage Tests Documentation](HOMEPAGE_TESTS_README.md)** - Detailed homepage test specifications
+- **[Signup Tests Documentation](SIGNUP_TESTS_README.md)** - Complete signup/login test guide
+- **[Signup Manual Steps](manual-steps_SignupTests.md)** - Manual signup testing procedures
 - **[Evidence Directory Guide](Evidence/README.md)** - Test artifacts documentation
 - **[Screenshot Utilities](utils/screenshot-examples.md)** - Screenshot handling examples
 
 ## 🚨 Known Issues & Solutions
 
-### Mixed Content Warnings
-Browser console may show mixed content warnings for Google Fonts (HTTP on HTTPS). These are harmless and handled gracefully by the framework.
+### Configuration Optimizations
+- **Viewport Screenshots**: Using `fullPage: false` prevents 32,767px size limit errors
+- **Failure-Only Screenshots**: Captures screenshots only on test failures for efficiency
+- **Video Storage**: Organized in `Evidence/video/` with automatic cleanup support
 
-### Screenshot Size Limits  
-Framework automatically handles "Cannot take screenshot larger than 32767 pixels" errors with viewport fallback.
+### Browser Compatibility
+Framework handles mixed content warnings and HTTPS certificate issues automatically with `ignoreHTTPSErrors: true`.
 
-### Carousel Control Detection
-Tests use multiple selector patterns to handle different carousel implementations with automatic fallbacks.
+### Evidence Management
+Use `npm run clean:evidence` to clean all test artifacts (videos, screenshots, traces, results) between test runs.
 
 ## 🤝 Contributing
 1. Follow the Page Object Model pattern

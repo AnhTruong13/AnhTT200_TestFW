@@ -11,9 +11,11 @@ This document provides detailed information about the signup page test suite for
 
 ## Test Environment
 - **Target URL**: https://www.automationexercise.com/login
-- **Browsers**: Chromium, Firefox, Safari, Edge, Chrome
-- **Viewport Sizes**: 1280x720 (with responsive testing)
-- **Video Recording**: Enabled on failure (WebM format)
+- **Browsers**: Chromium, Firefox, Safari (WebKit), Microsoft Edge, Google Chrome
+- **Viewport Screenshots**: Enabled to prevent size limit issues (only on failure)
+- **Video Recording**: 1280x720 WebM format, retain-on-failure mode
+- **Reporting**: Dual reporters (Allure + HTML) with visual evidence
+- **Modern Allure**: Uses allure-js-commons (no deprecation warnings)
 
 ## Test Architecture
 

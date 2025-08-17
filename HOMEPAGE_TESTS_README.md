@@ -6,13 +6,13 @@ This comprehensive test suite provides end-to-end testing for the [Automation Ex
 
 ### New Features Added:
 - **Video Recording**: Automatic video capture on test failures (WebM format, 1280x720)
-- **Enhanced Screenshot System**: Smart handling with automatic fallback for large pages
-- **Allure Integration**: Rich HTML reports with visual evidence and test steps
+- **Smart Screenshots**: Viewport screenshots to prevent size limit issues (only on failure)
+- **Dual Reporting**: Both Allure and HTML reports generated simultaneously
 - **Evidence Directory**: Organized storage for videos, screenshots, and traces
 - **Mixed Content Handling**: Graceful handling of HTTPS/HTTP warnings
-- **Test Stability**: Improved page loading and element detection reliability
-- **Responsive Testing**: Dedicated viewport screenshot utilities
-- **Error Recovery**: Robust fallback mechanisms for test continuity
+- **Modern Allure Integration**: Updated to use allure-js-commons (no deprecation warnings)
+- **Enhanced Test Cleanup**: Improved evidence cleanup with comprehensive npm script
+- **Cross-Browser Testing**: Optimized configuration for 5 browsers
 
 ## 📁 Project Structure
 
