@@ -16,6 +16,7 @@ This document provides detailed information about the signup page test suite for
 - **Video Recording**: 1280x720 WebM format, retain-on-failure mode
 - **Reporting**: Dual reporters (Allure + HTML) with visual evidence
 - **Modern Allure**: Uses allure-js-commons (no deprecation warnings)
+- **Enhanced Timeouts**: 60s test timeout, 15s action timeout, 30s navigation timeout, 10s assertion timeout
 
 ## Test Architecture
 

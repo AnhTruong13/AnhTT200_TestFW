@@ -1,14 +1,29 @@
 import { test, expect } from '../utils/fixtures';
 import * as allure from 'allure-js-commons';
+import { TestUtils } from '../utils/TestUtils';
 
 test.describe('Homepage Tests - Automation Exercise', () => {
-    test.beforeEach(async ({ homePage }) => {
+    test.beforeEach(async ({ homePage, page }) => {
         await allure.epic('Homepage');
         await allure.feature('Homepage Navigation and Content');
         await homePage.navigateToHomePage();
+
+        // Only take initial screenshot in CI or if SCREENSHOTS=all is set
+        if (process.env.CI || process.env.SCREENSHOTS === 'all') {
+            await allure.step('Take initial screenshot', async () => {
+                await TestUtils.takeScreenshot(page, 'homepage-initial');
+            });
+        }
     });
 
-    test('Verify homepage loads successfully', async ({ homePage }) => {
+    test.afterEach(async ({ page }, testInfo) => {
+        // Smart screenshot - only on failure or when explicitly requested
+        if (testInfo.status === 'failed') {
+            await TestUtils.takeScreenshot(page, `homepage-failed-${testInfo.title.replace(/\s+/g, '-')}`);
+        }
+    });
+
+    test('Verify homepage loads successfully', async ({ homePage, page }, testInfo) => {
         await allure.story('Homepage Loading');
         await allure.description('Verify that the homepage loads correctly with all main elements visible');
 
@@ -18,22 +33,22 @@ test.describe('Homepage Tests - Automation Exercise', () => {
         // Verify page title
         await homePage.verifyPageTitle('Automation Exercise');
 
-        // Take screenshot for verification
-        await homePage.takeScreenshot('homepage-loaded');
+        // Take conditional verification screenshot
+        await TestUtils.takeConditionalScreenshot(page, 'homepage-loaded', testInfo);
     });
 
-    test('Verify navigation menu items are present', async ({ homePage }) => {
+    test('Verify navigation menu items are present', async ({ homePage, page }, testInfo) => {
         await allure.story('Navigation Menu');
         await allure.description('Verify all navigation menu items are visible and accessible');
 
         // Verify all navigation menu items
         await homePage.verifyNavigationMenuItems();
 
-        // Take screenshot
-        await homePage.takeScreenshot('navigation-menu');
+        // Take conditional screenshot
+        await TestUtils.takeConditionalScreenshot(page, 'navigation-menu', testInfo);
     });
 
-    test('Verify main content sections are visible', async ({ homePage }) => {
+    test('Verify main content sections are visible', async ({ homePage, page }, testInfo) => {
         await allure.story('Main Content');
         await allure.description('Verify all main content sections are displayed on the homepage');
 
@@ -43,22 +58,22 @@ test.describe('Homepage Tests - Automation Exercise', () => {
         // Verify footer section
         await homePage.verifyFooterSection();
 
-        // Take screenshot
-        await homePage.takeScreenshot('main-content-sections');
+        // Take conditional screenshot
+        await TestUtils.takeConditionalScreenshot(page, 'main-content-sections', testInfo);
     });
 
-    test('Verify carousel functionality', async ({ homePage }) => {
+    test('Verify carousel functionality', async ({ homePage, page }, testInfo) => {
         await allure.story('Carousel Interaction');
         await allure.description('Verify that the homepage carousel is working correctly');
 
         // Verify carousel is working
         await homePage.verifyCarouselIsWorking();
 
-        // Take screenshot
-        await homePage.takeScreenshot('carousel-functionality');
+        // Take conditional screenshot
+        await TestUtils.takeConditionalScreenshot(page, 'carousel-functionality', testInfo);
     });
 
-    test('Verify newsletter subscription', async ({ homePage }) => {
+    test('Verify newsletter subscription', async ({ homePage, page }, testInfo) => {
         await allure.story('Newsletter Subscription');
         await allure.description('Verify that users can subscribe to newsletter');
 
@@ -75,11 +90,11 @@ test.describe('Homepage Tests - Automation Exercise', () => {
             console.log('No success message found for subscription');
         }
 
-        // Take screenshot
-        await homePage.takeScreenshot('newsletter-subscription');
+        // Take conditional screenshot
+        await TestUtils.takeConditionalScreenshot(page, 'newsletter-subscription', testInfo);
     });
 
-    test('Verify navigation links functionality', async ({ homePage, page }) => {
+    test('Verify navigation links functionality', async ({ homePage, page }, testInfo) => {
         await allure.story('Navigation Links');
         await allure.description('Verify that navigation links redirect to correct pages');
 
@@ -98,11 +113,11 @@ test.describe('Homepage Tests - Automation Exercise', () => {
         await expect(page).toHaveURL(/.*login.*/);
         await page.goBack();
 
-        // Take screenshot
-        await homePage.takeScreenshot('navigation-links-test');
+        // Take conditional screenshot
+        await TestUtils.takeConditionalScreenshot(page, 'navigation-links-test', testInfo);
     });
 
-    test('Verify categories section', async ({ homePage }) => {
+    test('Verify categories section', async ({ homePage, page }, testInfo) => {
         await allure.story('Categories Section');
         await allure.description('Verify that categories section displays product categories');
 
@@ -114,11 +129,11 @@ test.describe('Homepage Tests - Automation Exercise', () => {
 
         console.log('Available categories:', categories);
 
-        // Take screenshot
-        await homePage.takeScreenshot('categories-section');
+        // Take conditional screenshot
+        await TestUtils.takeConditionalScreenshot(page, 'categories-section', testInfo);
     });
 
-    test('Verify brands section', async ({ homePage }) => {
+    test('Verify brands section', async ({ homePage, page }, testInfo) => {
         await allure.story('Brands Section');
         await allure.description('Verify that brands section displays available brands');
 
@@ -130,22 +145,22 @@ test.describe('Homepage Tests - Automation Exercise', () => {
 
         console.log('Available brands:', brands);
 
-        // Take screenshot
-        await homePage.takeScreenshot('brands-section');
+        // Take conditional screenshot
+        await TestUtils.takeConditionalScreenshot(page, 'brands-section', testInfo);
     });
 
-    test('Verify responsive design on different viewports', async ({ homePage }) => {
+    test('Verify responsive design on different viewports', async ({ homePage, page }, testInfo) => {
         await allure.story('Responsive Design');
         await allure.description('Verify homepage works correctly on different screen sizes');
 
         // Test responsiveness
         await homePage.verifyResponsiveness();
 
-        // Take screenshot at different viewports
-        await homePage.takeScreenshot('responsive-design');
+        // Take conditional screenshot at different viewports
+        await TestUtils.takeConditionalScreenshot(page, 'responsive-design', testInfo);
     });
 
-    test('Verify scroll to top functionality', async ({ homePage, page }) => {
+    test('Verify scroll to top functionality', async ({ homePage, page }, testInfo) => {
         await allure.story('Scroll to Top');
         await allure.description('Verify scroll to top button functionality');
 
@@ -164,11 +179,11 @@ test.describe('Homepage Tests - Automation Exercise', () => {
         const scrollPosition = await page.evaluate(() => window.pageYOffset);
         expect(scrollPosition).toBe(0);
 
-        // Take screenshot
-        await homePage.takeScreenshot('scroll-to-top');
+        // Take conditional screenshot
+        await TestUtils.takeConditionalScreenshot(page, 'scroll-to-top', testInfo);
     });
 
-    test('Verify page performance and loading', async ({ homePage, page }) => {
+    test('Verify page performance and loading', async ({ homePage, page }, testInfo) => {
         await allure.story('Performance');
         await allure.description('Verify page loads within acceptable time limits');
 
@@ -198,7 +213,7 @@ test.describe('Homepage Tests - Automation Exercise', () => {
             console.log('Console errors found:', consoleErrors);
         }
 
-        // Take screenshot
-        await homePage.takeScreenshot('performance-test');
+        // Take conditional screenshot
+        await TestUtils.takeConditionalScreenshot(page, 'performance-test', testInfo);
     });
 });

@@ -309,4 +309,62 @@ export class TestUtils {
             }
         });
     }
+
+    /**
+     * Takes a conditional screenshot based on test status or environment
+     * @param page - Playwright page object
+     * @param testName - Name of the test for screenshot filename
+     * @param testInfo - Playwright test info object (optional, used to check test status)
+     * @param force - Force screenshot regardless of conditions (default: false)
+     */
+    static async takeConditionalScreenshot(page: Page, testName: string, testInfo?: TestInfo, force: boolean = false): Promise<void> {
+        // Conditions for taking screenshot:
+        // 1. Test is failing/failed
+        // 2. Force flag is true
+        // 3. Environment variable SCREENSHOTS=all
+        // 4. CI environment (for debugging CI issues)
+
+        const shouldTakeScreenshot =
+            force ||
+            (testInfo && (testInfo.status === 'failed' || testInfo.status === 'timedOut')) ||
+            process.env.SCREENSHOTS === 'all' ||
+            process.env.CI ||
+            process.env.NODE_ENV === 'test';
+
+        if (shouldTakeScreenshot) {
+            await this.takeScreenshot(page, testName);
+        } else {
+            console.log(`📷 Conditional screenshot skipped for ${testName} (test passing, no force flag)`);
+        }
+    }
+
+    /**
+     * Takes a screenshot for critical test steps (always taken)
+     * Use this for important verification points that should always be documented
+     * @param page - Playwright page object  
+     * @param testName - Name of the test for screenshot filename
+     */
+    static async takeCriticalScreenshot(page: Page, testName: string): Promise<void> {
+        console.log(`📸 Taking critical screenshot: ${testName}`);
+        await this.takeScreenshot(page, testName);
+    }
+
+    /**
+     * Takes a screenshot only for failed tests or specific conditions
+     * @param page - Playwright page object
+     * @param testName - Name of the test for screenshot filename  
+     * @param testInfo - Playwright test info object
+     */
+    static async takeSmartScreenshot(page: Page, testName: string, testInfo: TestInfo): Promise<void> {
+        // Only take screenshot if test failed or explicitly requested
+        if (testInfo.status === 'failed' || testInfo.status === 'timedOut') {
+            console.log(`🔍 Taking failure screenshot: ${testName}`);
+            await this.takeScreenshot(page, testName);
+        } else if (process.env.SCREENSHOTS === 'all') {
+            console.log(`📋 Taking documentation screenshot: ${testName}`);
+            await this.takeScreenshot(page, testName);
+        } else {
+            console.log(`✅ Smart screenshot skipped for ${testName} (test passed)`);
+        }
+    }
 }

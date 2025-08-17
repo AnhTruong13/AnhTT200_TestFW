@@ -22,8 +22,14 @@ await TestUtils.takeCustomScreenshot(page, 'specific-area', {
     clip: { x: 0, y: 0, width: 800, height: 600 }
 });
 
-// Example 6: In test - handling screenshot errors gracefully
-test('My test with screenshot handling', async ({ page }) => {
+// Example 6: In test with enhanced timeout handling
+test('My test with screenshot and timeout handling', async ({ page }) => {
+    // Enhanced timeout configurations ensure actions complete properly:
+    // - 60s total test timeout
+    // - 15s action timeout for clicks, fills, etc.
+    // - 30s navigation timeout for page loads
+    // - 10s assertion timeout
+    
     // Your test code here...
     
     try {

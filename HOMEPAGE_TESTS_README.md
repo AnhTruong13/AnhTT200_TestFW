@@ -13,6 +13,7 @@ This comprehensive test suite provides end-to-end testing for the [Automation Ex
 - **Modern Allure Integration**: Updated to use allure-js-commons (no deprecation warnings)
 - **Enhanced Test Cleanup**: Improved evidence cleanup with comprehensive npm script
 - **Cross-Browser Testing**: Optimized configuration for 5 browsers
+- **Enhanced Timeout Configuration**: Optimized timeouts for complex web applications (60s test timeout, 15s action timeout, 10s assertion timeout)
 
 ## 📁 Project Structure
 

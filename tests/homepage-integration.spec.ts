@@ -3,19 +3,33 @@ import * as allure from 'allure-js-commons';
 import { TestUtils } from '../utils/TestUtils';
 
 test.describe('Homepage to Products Navigation Flow', () => {
-    test.beforeEach(async () => {
+    test.beforeEach(async ({ page }) => {
         await allure.epic('E2E User Journey');
         await allure.feature('Homepage to Products Navigation');
 
         // Ensure test data directories exist
         TestUtils.ensureTestDataDirectory();
+
+        // Only take initial screenshot in CI or if SCREENSHOTS=all is set
+        if (process.env.CI || process.env.SCREENSHOTS === 'all') {
+            await allure.step('Take initial screenshot', async () => {
+                await TestUtils.takeScreenshot(page, 'integration-test-initial');
+            });
+        }
+    });
+
+    test.afterEach(async ({ page }, testInfo) => {
+        // Smart screenshot - only on failure or when explicitly requested
+        if (testInfo.status === 'failed') {
+            await TestUtils.takeScreenshot(page, `integration-failed-${testInfo.title.replace(/\s+/g, '-')}`);
+        }
     });
 
     test('Complete user journey: Homepage -> Products -> Product Details', async ({
         homePage,
         productsPage,
         page
-    }) => {
+    }, testInfo) => {
         await allure.story('User Navigation Flow');
         await allure.description('Test complete user journey from homepage through product browsing');
 
@@ -27,14 +41,14 @@ test.describe('Homepage to Products Navigation Flow', () => {
             await homePage.navigateToHomePage();
             await homePage.verifyHomePageIsVisible();
             await homePage.verifyPageTitle('Automation Exercise');
-            await TestUtils.takeScreenshot(page, 'homepage-loaded');
+            await TestUtils.takeConditionalScreenshot(page, 'homepage-loaded', testInfo);
         });
 
         // Step 2: Navigate to products page
         await allure.step('Navigate to products page', async () => {
             await homePage.clickNavigationLink('products');
             await productsPage.verifyProductsPageLoaded();
-            await TestUtils.takeScreenshot(page, 'products-page-loaded');
+            await TestUtils.takeConditionalScreenshot(page, 'products-page-loaded', testInfo);
         });
 
         // Step 3: Verify products are displayed
@@ -42,7 +56,7 @@ test.describe('Homepage to Products Navigation Flow', () => {
             const productsCount = await productsPage.getProductsCount();
             expect(productsCount).toBeGreaterThan(0);
             console.log(`Found ${productsCount} products on the page`);
-            await TestUtils.takeScreenshot(page, 'products-displayed');
+            await TestUtils.takeConditionalScreenshot(page, 'products-displayed', testInfo);
         });
 
         // Step 4: Search for a specific product
@@ -54,7 +68,7 @@ test.describe('Homepage to Products Navigation Flow', () => {
 
             const searchResults = await productsPage.getProductsCount();
             console.log(`Found ${searchResults} products matching search criteria`);
-            await TestUtils.takeScreenshot(page, 'search-results');
+            await TestUtils.takeCriticalScreenshot(page, 'search-results');
         });
 
         // Step 5: View product details
@@ -64,12 +78,12 @@ test.describe('Homepage to Products Navigation Flow', () => {
 
                 // Verify we're on a product details page
                 await expect(page).toHaveURL(/.*product_details.*/);
-                await TestUtils.takeScreenshot(page, 'product-details');
+                await TestUtils.takeCriticalScreenshot(page, 'product-details');
             }
         });
     });
 
-    test('Test homepage responsiveness and performance', async ({ homePage, page }) => {
+    test('Test homepage responsiveness and performance', async ({ homePage, page }, testInfo) => {
         await allure.story('Performance and Responsiveness');
         await allure.description('Test homepage performance and responsive design');
 
@@ -90,21 +104,21 @@ test.describe('Homepage to Products Navigation Flow', () => {
             // Test mobile viewport
             await page.setViewportSize({ width: 375, height: 667 });
             await homePage.verifyHomePageIsVisible();
-            await TestUtils.takeViewportScreenshot(page, 'mobile-viewport');
+            await TestUtils.takeConditionalScreenshot(page, 'mobile-viewport', testInfo);
 
             // Test tablet viewport
             await page.setViewportSize({ width: 768, height: 1024 });
             await homePage.verifyHomePageIsVisible();
-            await TestUtils.takeViewportScreenshot(page, 'tablet-viewport');
+            await TestUtils.takeConditionalScreenshot(page, 'tablet-viewport', testInfo);
 
             // Test desktop viewport
             await page.setViewportSize({ width: 1920, height: 1080 });
             await homePage.verifyHomePageIsVisible();
-            await TestUtils.takeViewportScreenshot(page, 'desktop-viewport');
+            await TestUtils.takeConditionalScreenshot(page, 'desktop-viewport', testInfo);
         });
     });
 
-    test('Test homepage interactive elements', async ({ homePage, page }) => {
+    test('Test homepage interactive elements', async ({ homePage, page }, testInfo) => {
         await allure.story('Interactive Elements');
         await allure.description('Test all interactive elements on the homepage');
 
@@ -116,13 +130,13 @@ test.describe('Homepage to Products Navigation Flow', () => {
             await homePage.subscribeToNewsletter(testEmail);
 
             console.log(`Tested subscription with email: ${testEmail}`);
-            await TestUtils.takeScreenshot(page, 'newsletter-subscription');
+            await TestUtils.takeConditionalScreenshot(page, 'newsletter-subscription', testInfo);
         });
 
         // Step 2: Test carousel functionality
         await allure.step('Test carousel navigation', async () => {
             await homePage.verifyCarouselIsWorking();
-            await TestUtils.takeScreenshot(page, 'carousel-interaction');
+            await TestUtils.takeConditionalScreenshot(page, 'carousel-interaction', testInfo);
         });
 
         // Step 3: Test scroll to top functionality
@@ -140,11 +154,11 @@ test.describe('Homepage to Products Navigation Flow', () => {
             const scrollPosition = await page.evaluate(() => window.pageYOffset);
             expect(scrollPosition).toBeLessThanOrEqual(100); // Allow up to 100px from the top
 
-            await TestUtils.takeScreenshot(page, 'scroll-to-top');
+            await TestUtils.takeCriticalScreenshot(page, 'scroll-to-top');
         });
     });
 
-    test('Verify all navigation links work correctly', async ({ homePage, page }) => {
+    test('Verify all navigation links work correctly', async ({ homePage, page }, testInfo) => {
         await allure.story('Navigation Links Validation');
         await allure.description('Verify all navigation links redirect to correct pages');
 
@@ -162,7 +176,7 @@ test.describe('Homepage to Products Navigation Flow', () => {
             await allure.step(`Test ${navTest.link} navigation`, async () => {
                 await homePage.clickNavigationLink(navTest.link);
                 await expect(page).toHaveURL(navTest.expectedUrlPattern);
-                await TestUtils.takeScreenshot(page, `navigation-${navTest.link}`);
+                await TestUtils.takeConditionalScreenshot(page, `navigation-${navTest.link}`, testInfo);
                 await page.goBack();
                 await TestUtils.waitForPageReady(page);
             });

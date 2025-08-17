@@ -42,13 +42,20 @@ await TestUtils.takeLongPageScreenshots(page, 'long-page-test');
 
 ### Screenshot Configuration
 
-The playwright.config.ts now uses viewport screenshots by default to avoid size limits:
+The playwright.config.ts now uses viewport screenshots by default to avoid size limits and includes enhanced timeout configurations:
 
 ```typescript
+// Screenshot configuration
 screenshot: {
   mode: 'only-on-failure',
   fullPage: false // Prevents size limit errors
-}
+},
+
+// Enhanced timeout configurations for complex web applications
+timeout: 60000,           // 60 seconds per test (vs 30s default)
+actionTimeout: 15000,     // 15 seconds per action
+navigationTimeout: 30000, // 30 seconds for page loads
+expect: { timeout: 10000 } // 10 seconds for assertions
 ```
 
 ## Video Recording

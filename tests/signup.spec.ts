@@ -12,18 +12,20 @@ test.describe('Signup Page Tests', () => {
             await signupPage.navigateToSignupPage();
         });
 
-        await allure.step('Take initial screenshot', async () => {
-            await TestUtils.takeScreenshot(page, 'signup-page-initial');
-        });
-    });
-
-    test.afterEach(async ({ page }, testInfo) => {
+        // Only take initial screenshot in CI or if SCREENSHOTS=all is set
+        if (process.env.CI || process.env.SCREENSHOTS === 'all') {
+            await allure.step('Take initial screenshot', async () => {
+                await TestUtils.takeScreenshot(page, 'signup-page-initial');
+            });
+        }
+    }); test.afterEach(async ({ page }, testInfo) => {
+        // Smart screenshot - only on failure or when explicitly requested
         if (testInfo.status === 'failed') {
             await TestUtils.takeScreenshot(page, `signup-failed-${testInfo.title.replace(/\s+/g, '-')}`);
         }
     });
 
-    test('TC_SIGNUP_001: Verify signup page elements are visible', async ({ signupPage, page }) => {
+    test('TC_SIGNUP_001: Verify signup page elements are visible', async ({ page, signupPage }, testInfo) => {
         await allure.description('Verify that all signup and login form elements are visible on the page');
         await allure.severity('critical');
         await allure.tag('smoke');
@@ -33,12 +35,13 @@ test.describe('Signup Page Tests', () => {
             await signupPage.verifySignupPageIsVisible();
         });
 
-        await allure.step('Take screenshot of visible elements', async () => {
-            await TestUtils.takeScreenshot(page, 'signup-page-elements-visible');
+        await allure.step('Take verification screenshot', async () => {
+            // Use conditional screenshot - only if test fails or SCREENSHOTS=all
+            await TestUtils.takeConditionalScreenshot(page, 'signup-page-elements-visible', testInfo);
         });
     });
 
-    test('TC_SIGNUP_002: Successful user registration with valid data', async ({ signupPage, page }) => {
+    test('TC_SIGNUP_002: Successful user registration with valid data', async ({ signupPage, page }, testInfo) => {
         await allure.description('Test successful user registration with valid data through complete signup flow');
         await allure.severity('critical');
         await allure.tag('regression');
@@ -65,13 +68,15 @@ test.describe('Signup Page Tests', () => {
 
         await allure.step('Fill initial signup form', async () => {
             await signupPage.fillSignupForm(userData.name, userData.email);
-            await TestUtils.takeScreenshot(page, 'signup-form-filled');
+            // Only take screenshot if needed for debugging or documentation
+            await TestUtils.takeConditionalScreenshot(page, 'signup-form-filled', testInfo);
         });
 
         await allure.step('Submit initial signup', async () => {
             await signupPage.clickSignupButton();
             await page.waitForLoadState('domcontentloaded');
-            await TestUtils.takeScreenshot(page, 'account-info-page');
+            // Critical screenshot - account info page is important verification point
+            await TestUtils.takeCriticalScreenshot(page, 'account-info-page');
         });
 
         await allure.step('Complete full signup flow', async () => {
@@ -86,7 +91,7 @@ test.describe('Signup Page Tests', () => {
                     specialOffers: true
                 });
 
-                await TestUtils.takeScreenshot(page, 'account-info-filled');
+                await TestUtils.takeConditionalScreenshot(page, 'account-info-filled', testInfo);
 
                 await signupPage.fillAddressInformation({
                     firstName: userData.firstName,
@@ -100,12 +105,12 @@ test.describe('Signup Page Tests', () => {
                     country: userData.country
                 });
 
-                await TestUtils.takeScreenshot(page, 'address-info-filled');
+                await TestUtils.takeConditionalScreenshot(page, 'address-info-filled', testInfo);
 
                 await signupPage.clickCreateAccountButton();
                 await page.waitForLoadState('domcontentloaded');
 
-                await TestUtils.takeScreenshot(page, 'account-created');
+                await TestUtils.takeCriticalScreenshot(page, 'account-created');
             } catch (error) {
                 console.log('Error during signup flow, continuing with verification');
                 await TestUtils.takeScreenshot(page, 'signup-flow-error');

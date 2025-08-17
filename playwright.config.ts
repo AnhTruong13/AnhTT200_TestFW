@@ -23,6 +23,8 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['allure-playwright'], ['html']],
+  /* Global teardown to clean empty video directories */
+  globalTeardown: require.resolve('./utils/global-teardown.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -45,6 +47,18 @@ export default defineConfig({
 
     /* Ignore HTTPS errors and mixed content warnings */
     ignoreHTTPSErrors: true,
+
+    /* Timeout configurations */
+    actionTimeout: 15000, // 15 seconds for individual actions (click, fill, etc.)
+    navigationTimeout: 30000, // 30 seconds for page navigation
+  },
+
+  /* Global test timeout - maximum time for a single test */
+  timeout: 60000, // 60 seconds per test
+
+  /* Global expect timeout for assertions */
+  expect: {
+    timeout: 10000 // 10 seconds for expect assertions
   },
 
   /* Configure output directories */

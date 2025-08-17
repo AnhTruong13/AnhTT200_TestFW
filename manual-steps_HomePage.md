@@ -10,6 +10,7 @@
 - **Evidence Directory**: Organized storage for test artifacts (videos, screenshots, traces)
 - **Mixed Content Error Handling**: Graceful handling of HTTPS/HTTP mixed content warnings
 - **Improved Test Stability**: Enhanced page loading and navigation reliability
+- **Enhanced Timeout Configuration**: Optimized timeouts for complex web applications (60s test timeout, 15s action timeout, 30s navigation timeout)
 
 ### Test Artifacts Generated:
 - **Videos**: Saved in `Evidence/video/` (WebM format, 1280x720 resolution)

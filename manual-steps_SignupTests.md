@@ -7,6 +7,7 @@ This document provides manual testing steps for the Signup Page functionality of
 - Browser: Chrome, Firefox, Safari, or Edge
 - Internet connection
 - Access to https://www.automationexercise.com/
+- **Note**: Automated tests are configured with enhanced timeouts (60s test timeout, 15s action timeout) to handle complex form submissions and page transitions
 
 ---
 
