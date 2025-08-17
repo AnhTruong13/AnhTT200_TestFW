@@ -5,3 +5,30 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Allure
+/allure-results/
+/allure-report/
+
+# Temporary files
+*.log
+*.tmp
+.env
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Test data
+account-records.txt
