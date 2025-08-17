@@ -5,14 +5,15 @@ This comprehensive test suite provides end-to-end testing for the [Automation Ex
 ## 🚀 Recent Enhancements (August 2025)
 
 ### New Features Added:
-- **Video Recording**: Automatic video capture on test failures (WebM format, 1280x720)
-- **Smart Screenshots**: Viewport screenshots to prevent size limit issues (only on failure)
-- **Dual Reporting**: Both Allure and HTML reports generated simultaneously
-- **Evidence Directory**: Organized storage for videos, screenshots, and traces
+- **Optional Video Evidence Recording**: Dynamic video capture with VIDEO_MODE environment variable (all/off/retain-on-failure)
+- **Step-by-Step Evidence**: Comprehensive screenshot and video evidence for every test step
+- **TestUtils Integration**: Enhanced utility methods for video evidence recording (recordStepEvidence, testStep)
+- **Smart Screenshots**: Viewport screenshots to prevent size limit issues (before/after each step)
+- **Dual Reporting**: Both Allure and HTML reports generated simultaneously with video evidence
+- **Evidence Directory**: Organized storage for videos, screenshots, and traces with timestamp organization
 - **Mixed Content Handling**: Graceful handling of HTTPS/HTTP warnings
 - **Modern Allure Integration**: Updated to use allure-js-commons (no deprecation warnings)
-- **Enhanced Test Cleanup**: Improved evidence cleanup with comprehensive npm script
-- **Cross-Browser Testing**: Optimized configuration for 5 browsers
+- **Cross-Platform Compatibility**: Enhanced npm scripts with cross-env and rimraf support
 - **Enhanced Timeout Configuration**: Optimized timeouts for complex web applications (60s test timeout, 15s action timeout, 10s assertion timeout)
 
 ## 📁 Project Structure
@@ -27,15 +28,18 @@ This comprehensive test suite provides end-to-end testing for the [Automation Ex
 │   ├── TestUtils.ts              # Enhanced utilities with screenshot handling
 │   └── screenshot-examples.md    # Screenshot utility documentation
 ├── tests/
-│   ├── homepage.spec.ts          # Homepage tests (11 comprehensive tests)
-│   └── homepage-integration.spec.ts # Integration tests (4 user journey tests)
-├── Evidence/                     # Test artifacts and evidence
-│   ├── video/                    # Test execution videos (WebM)
-│   ├── screenshots/              # Screenshots with fallback handling
+│   ├── homepage.spec.ts          # Homepage tests (11 comprehensive tests with video evidence)
+│   └── homepage-integration.spec.ts # Integration tests (4 user journey tests with full video recording)
+├── utils/
+│   └── TestUtils.ts              # Enhanced utility methods with video evidence recording
+├── Evidence/                     # Test artifacts and evidence with timestamp organization
+│   ├── video/                    # Test execution videos (WebM) with step-by-step recording
+│   ├── screenshots/              # Screenshots with before/after step evidence
 │   ├── traces/                   # Playwright traces
 │   └── README.md                 # Evidence documentation
-├── allure-results/               # Raw Allure test results (JSON)
-├── allure-report/                # Generated Allure HTML reports
+├── allure-results/               # Raw Allure test results (JSON) with video attachments
+├── allure-report/                # Generated Allure HTML reports with embedded video evidence
+├── VIDEO_EVIDENCE_GUIDE.md       # Comprehensive guide for video evidence recording
 └── manual-steps_AllTests.md      # Manual testing procedures
 ```
 
@@ -61,28 +65,31 @@ This comprehensive test suite provides end-to-end testing for the [Automation Ex
 - **Evidence Collection**: Organized storage with automatic cleanup
 - **Allure Integration**: Rich reporting with step-by-step documentation
 
-### Video Recording System
-- **Automatic Recording**: Videos captured on test failures only
-- **High Quality**: 1280x720 WebM format for clear debugging
-- **Organized Storage**: Structured directories with test context
-- **Allure Attachment**: Videos automatically attached to test reports
+### Video Evidence Recording System
+- **Dynamic VIDEO_MODE**: Environment-controlled video capture (all/off/retain-on-failure)
+- **Step-by-Step Recording**: Complete video evidence for every test action with TestUtils.testStep()
+- **Before/After Screenshots**: Comprehensive visual evidence with TestUtils.recordStepEvidence()
+- **High Quality**: 1280x720 WebM format for clear debugging and documentation
+- **Organized Storage**: Structured directories with timestamp organization and test context
+- **Allure Integration**: Videos and screenshots automatically attached to detailed test reports
+- **Performance Optimized**: Minimal impact on test execution with smart recording triggers
 
 ## 🎯 Test Coverage
 
-### Homepage Tests (`homepage.spec.ts`) - 11 Comprehensive Tests
-1. ✅ **Homepage Loading**: Page load verification with performance metrics
-2. ✅ **Navigation Menu**: Enhanced validation with strict mode fixes
-3. ✅ **Content Sections**: Complete visibility verification of all page sections
-4. ✅ **Carousel Functionality**: Multi-pattern selector matching with fallbacks
-5. ✅ **Newsletter Subscription**: Dynamic email testing with validation
-6. ✅ **Navigation Links**: Comprehensive link verification with error handling
-7. ✅ **Categories Section**: Product category validation and interaction
-8. ✅ **Brands Section**: Brand listing verification with click testing
-9. ✅ **Responsive Design**: Multi-viewport testing (mobile, tablet, desktop)
-10. ✅ **Scroll to Top**: Enhanced scroll functionality with position tolerance
-11. ✅ **Performance Testing**: Load time monitoring with console error detection
+### Homepage Tests (`homepage.spec.ts`) - 11 Comprehensive Tests with Video Evidence
+1. ✅ **Homepage Loading**: Page load verification with performance metrics and video evidence
+2. ✅ **Navigation Menu**: Enhanced validation with strict mode fixes and step recording
+3. ✅ **Content Sections**: Complete visibility verification with before/after screenshots
+4. ✅ **Carousel Functionality**: Multi-pattern selector matching with video evidence of interactions
+5. ✅ **Newsletter Subscription**: Dynamic email testing with complete form interaction recording
+6. ✅ **Navigation Links**: Comprehensive link verification with click evidence and error handling
+7. ✅ **Categories Section**: Product category validation with interaction video evidence
+8. ✅ **Brands Section**: Brand listing verification with click testing and visual evidence
+9. ✅ **Responsive Design**: Multi-viewport testing with video evidence across devices
+10. ✅ **Scroll to Top**: Enhanced scroll functionality with position tolerance and scroll evidence
+11. ✅ **Performance Testing**: Load time monitoring with console error detection and performance evidence
 
-### Integration Tests (`homepage-integration.spec.ts`) - 4 User Journey Tests
+### Integration Tests (`homepage-integration.spec.ts`) - 4 User Journey Tests with Full Video Recording
 1. ✅ **Complete User Journey**: Homepage → Products → Product Details flow
 2. ✅ **Responsive Performance**: Cross-viewport performance with metrics capture
 3. ✅ **Interactive Elements**: Newsletter, carousel, scroll functionality testing
@@ -106,14 +113,29 @@ npm run test:homepage
 # Run integration tests  
 npm run test:integration
 
-# Run all tests with video recording
-npm run test:video
+# Run all tests with video evidence recording (all steps)
+npm run test:video:all
+
+# Run all tests with video evidence (Chromium only)
+npm run test:video:all:chromium
 
 # Run tests in headed mode
 npm run test:headed
 
 # Debug tests interactively
 npm run test:debug
+```
+
+### Video Evidence Options
+```bash
+# Full video evidence with comprehensive step recording
+npm run test:evidence:full
+
+# Minimal video evidence (failures only)
+npm run test:evidence:minimal
+
+# Clean all evidence before running tests
+npm run test:clean:all
 ```
 
 ### Advanced Test Options
@@ -185,12 +207,14 @@ npm run report:open
 - Reduced boilerplate code with enhanced utility integration
 - Pre-configured browser contexts with optimal settings
 
-### 📊 Comprehensive Reporting & Evidence
-- **Allure Integration**: Rich reports with step-by-step documentation
-- **Video Recording**: Automatic capture on failures with WebM format
-- **Smart Screenshots**: Automatic fallback for large pages and size limits
-- **Performance Metrics**: Load time measurement and console error tracking
-- **Error Context**: Detailed failure analysis with markdown documentation
+### 📊 Comprehensive Reporting & Video Evidence
+- **Allure Integration**: Rich reports with step-by-step documentation and embedded videos
+- **Optional Video Evidence**: Dynamic VIDEO_MODE control (all/off/retain-on-failure) for complete test recording
+- **Step-by-Step Evidence**: TestUtils.testStep() and TestUtils.recordStepEvidence() for granular documentation
+- **Smart Screenshots**: Before/after action screenshots with automatic fallback for large pages
+- **Performance Metrics**: Load time measurement and console error tracking with video evidence
+- **Error Context**: Detailed failure analysis with video playback and markdown documentation
+- **Timestamp Organization**: Structured evidence storage with test execution timestamps
 
 ### 📱 Cross-Browser & Responsive Testing
 - **Multi-Browser Support**: Chrome, Firefox, Edge, Safari, and branded browsers
@@ -328,6 +352,7 @@ test('Complete user journey', async ({ homePage, productsPage, page }) => {
 ## 🔗 Related Documentation
 
 - **[Manual Test Steps](manual-steps_AllTests.md)**: Comprehensive manual testing procedures
+- **[Video Evidence Guide](VIDEO_EVIDENCE_GUIDE.md)**: Complete guide for video evidence recording and configuration
 - **[Evidence Guide](Evidence/README.md)**: Test artifacts and video recording setup  
 - **[Screenshot Examples](utils/screenshot-examples.md)**: Screenshot utility usage examples
 - **[Main README](README.md)**: Project overview and setup instructions
@@ -335,4 +360,4 @@ test('Complete user journey', async ({ homePage, productsPage, page }) => {
 ---
 
 *Framework last updated: August 17, 2025*  
-*Comprehensive homepage testing with advanced evidence collection and error recovery*
+*Comprehensive homepage testing with optional video evidence recording and enhanced step-by-step documentation*

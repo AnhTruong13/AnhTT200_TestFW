@@ -13,9 +13,27 @@ export abstract class BasePage {
         this.loadingSpinner = page.locator('.loading, .spinner');
     }
 
-    async waitForPageLoad(): Promise<void> {
-        await this.page.waitForLoadState('networkidle');
-        await this.page.waitForLoadState('domcontentloaded');
+    async waitForPageLoad(timeout: number = 30000): Promise<void> {
+        try {
+            // Wait for DOM to be ready first
+            await this.page.waitForLoadState('domcontentloaded', { timeout: timeout / 3 });
+
+            // Try to wait for networkidle, but don't fail if it times out
+            try {
+                await this.page.waitForLoadState('networkidle', { timeout: timeout / 2 });
+            } catch (networkIdleError) {
+                console.log('Network idle timeout - proceeding with basic load state');
+                // Fallback: just ensure the page is loaded
+                await this.page.waitForLoadState('load', { timeout: timeout / 3 });
+            }
+
+            // Wait a short time for any dynamic content to settle
+            await this.page.waitForTimeout(1000);
+
+        } catch (error) {
+            console.log(`Page load timeout after ${timeout}ms - proceeding anyway`);
+            // Don't throw the error, let the test continue
+        }
     }
 
     async waitForElement(locator: Locator, timeout: number = 30000): Promise<void> {

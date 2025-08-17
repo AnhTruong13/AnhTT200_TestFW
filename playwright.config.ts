@@ -39,9 +39,11 @@ export default defineConfig({
       fullPage: false // Use viewport screenshots to avoid size limits
     },
 
-    /* Video recording configuration */
+    /* Video recording configuration - supports optional full recording */
     video: {
-      mode: 'retain-on-failure',
+      mode: process.env.VIDEO_MODE === 'all' ? 'on' :
+        process.env.VIDEO_MODE === 'off' ? 'off' :
+          'retain-on-failure',
       size: { width: 1280, height: 720 }
     },
 

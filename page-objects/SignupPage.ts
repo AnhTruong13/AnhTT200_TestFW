@@ -104,11 +104,8 @@ export class SignupPage extends BasePage {
 
     async navigateToSignupPage(): Promise<void> {
         await this.page.goto('/login');
-        try {
-            await this.page.waitForLoadState('domcontentloaded', { timeout: 15000 });
-        } catch (error) {
-            console.log('Page load timeout - continuing with loaded DOM');
-        }
+        // Use the enhanced waitForPageLoad method from BasePage
+        await this.waitForPageLoad(15000);
 
         // Wait for main elements to be visible as a backup
         await this.signupSection.waitFor({ state: 'visible', timeout: 10000 });
@@ -274,8 +271,8 @@ export class SignupPage extends BasePage {
 
     async verifyEmailAlreadyExistsError(): Promise<void> {
         try {
-            // Wait for the page to load after signup attempt
-            await this.page.waitForLoadState('domcontentloaded', { timeout: 10000 });
+            // Wait for the page to load after signup attempt using enhanced method
+            await this.waitForPageLoad(10000);
 
             // Try to find specific error message
             await expect(this.signupErrorMessage).toBeVisible({ timeout: 10000 });

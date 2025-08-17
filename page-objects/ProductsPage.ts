@@ -50,8 +50,33 @@ export class ProductsPage extends BasePage {
     }
 
     async clickViewProduct(index: number = 0): Promise<void> {
-        await this.viewProductButtons.nth(index).click();
-        await this.waitForPageLoad();
+        const viewProductButton = this.viewProductButtons.nth(index);
+
+        // Ensure the button is visible and ready
+        await viewProductButton.waitFor({ state: 'visible', timeout: 10000 });
+
+        // Scroll to the button to ensure it's in view
+        await viewProductButton.scrollIntoViewIfNeeded();
+
+        // Click with retry logic
+        let clicked = false;
+        for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+                await viewProductButton.click();
+                clicked = true;
+                break;
+            } catch (error) {
+                console.log(`Click attempt ${attempt + 1} failed: ${error.message}`);
+                await this.page.waitForTimeout(1000);
+            }
+        }
+
+        if (!clicked) {
+            throw new Error('Failed to click view product button after 3 attempts');
+        }
+
+        // Wait for navigation with more lenient timeout
+        await this.waitForPageLoad(45000); // Increased timeout for slow pages
     }
 
     async addProductToCart(index: number = 0): Promise<void> {

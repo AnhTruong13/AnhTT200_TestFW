@@ -49,9 +49,23 @@ npm run test:headed
 
 # Debug tests
 npm run test:debug
+
+# Full video evidence recording (all tests)
+npm run test:video:all
+
+# Full video evidence recording (Chromium only)
+npm run test:video:all:chromium
+
+# Complete evidence collection (videos + screenshots)
+npm run test:evidence:full
+
+# Minimal evidence collection (no videos, minimal screenshots)  
+npm run test:evidence:minimal
 ```
 
 > **📋 Cross-Platform Compatibility**: All npm scripts now use `cross-env` for seamless environment variable handling across Windows, macOS, and Linux. No more platform-specific command issues!
+
+> **🎥 Video Evidence Recording**: New optional video recording for all test steps. Use `VIDEO_MODE=all` to record comprehensive video evidence of all test executions.
 
 ### Specific Test Suites
 ```bash
@@ -160,10 +174,21 @@ npm run clean:evidence
 
 ### Video Recording System
 - **Format**: WebM files at 1280x720 resolution
-- **Mode**: `retain-on-failure` for efficient storage
+- **Mode**: Dynamic based on environment variables (`retain-on-failure`, `on`, `off`)
 - **Location**: `Evidence/video/` with organized subdirectories
 - **Auto Cleanup**: Empty video directories automatically removed after test runs
 - **Integration**: Automatic attachment to Allure reports
+
+### Optional Video Evidence Recording ⭐ NEW
+- **Full Recording Mode**: `VIDEO_MODE=all` records all test steps for comprehensive evidence
+- **Smart Recording**: Environment-controlled video capture (all/off/failure-only)
+- **Step-by-Step Evidence**: `TestUtils.recordStepEvidence()` for granular video recording
+- **Test Step Wrapper**: `TestUtils.testStep()` combines video and screenshot evidence
+- **Performance Optimized**: Videos only recorded when explicitly requested
+- **Evidence Modes**:
+  - `VIDEO_MODE=all`: Record every test action
+  - `VIDEO_MODE=off`: No video recording
+  - `VIDEO_MODE=retain-on-failure`: Record only failed tests (default)
 
 ### Screenshot & Evidence Improvements
 - **Smart Screenshots**: Conditional screenshot capture based on test status and environment
@@ -185,8 +210,11 @@ npm run clean:evidence
   - `SCREENSHOTS=off`: Absolute minimum (failures only)
 - **Methods Available**:
   - `takeConditionalScreenshot()`: Smart conditional capture
-  - `takeCriticalScreenshot()`: Always captures important steps
+  - `takeCriticalScreenshot()`: Always captures important steps  
   - `takeSmartScreenshot()`: Failure-aware capture
+  - `recordStepEvidence()`: Records video evidence for specific steps
+  - `testStep()`: Combines video and screenshot evidence for test steps
+  - `getVideoRecordingInfo()`: Displays current video recording configuration
 - **Benefits**: Reduced storage usage while maintaining debugging capability
 
 ### Test Stability Enhancements

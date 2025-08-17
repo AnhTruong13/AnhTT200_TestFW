@@ -27,50 +27,49 @@ test.describe('Homepage Tests - Automation Exercise', () => {
         await allure.story('Homepage Loading');
         await allure.description('Verify that the homepage loads correctly with all main elements visible');
 
-        // Verify homepage is visible
-        await homePage.verifyHomePageIsVisible();
+        // Log video recording configuration
+        if (process.env.VIDEO_MODE === 'all') {
+            console.log(TestUtils.getVideoRecordingInfo());
+        }
 
-        // Verify page title
-        await homePage.verifyPageTitle('Automation Exercise');
-
-        // Take conditional verification screenshot
-        await TestUtils.takeConditionalScreenshot(page, 'homepage-loaded', testInfo);
+        await TestUtils.testStep(page, 'Verify homepage loads successfully', async () => {
+            // Verify homepage is visible
+            await homePage.verifyHomePageIsVisible();
+            // Verify page title
+            await homePage.verifyPageTitle('Automation Exercise');
+        }, { screenshot: true });
     });
 
     test('Verify navigation menu items are present', async ({ homePage, page }, testInfo) => {
         await allure.story('Navigation Menu');
         await allure.description('Verify all navigation menu items are visible and accessible');
 
-        // Verify all navigation menu items
-        await homePage.verifyNavigationMenuItems();
-
-        // Take conditional screenshot
-        await TestUtils.takeConditionalScreenshot(page, 'navigation-menu', testInfo);
+        await TestUtils.testStep(page, 'Verify navigation menu items', async () => {
+            // Verify all navigation menu items
+            await homePage.verifyNavigationMenuItems();
+        }, { screenshot: true });
     });
 
     test('Verify main content sections are visible', async ({ homePage, page }, testInfo) => {
         await allure.story('Main Content');
         await allure.description('Verify all main content sections are displayed on the homepage');
 
-        // Verify main sections
-        await homePage.verifyMainSections();
-
-        // Verify footer section
-        await homePage.verifyFooterSection();
-
-        // Take conditional screenshot
-        await TestUtils.takeConditionalScreenshot(page, 'main-content-sections', testInfo);
+        await TestUtils.testStep(page, 'Verify main content sections', async () => {
+            // Verify main sections
+            await homePage.verifyMainSections();
+            // Verify footer section
+            await homePage.verifyFooterSection();
+        }, { screenshot: true });
     });
 
     test('Verify carousel functionality', async ({ homePage, page }, testInfo) => {
         await allure.story('Carousel Interaction');
         await allure.description('Verify that the homepage carousel is working correctly');
 
-        // Verify carousel is working
-        await homePage.verifyCarouselIsWorking();
-
-        // Take conditional screenshot
-        await TestUtils.takeConditionalScreenshot(page, 'carousel-functionality', testInfo);
+        await TestUtils.recordStepEvidence(page, 'Test carousel functionality', async () => {
+            // Verify carousel is working
+            await homePage.verifyCarouselIsWorking();
+        });
     });
 
     test('Verify newsletter subscription', async ({ homePage, page }, testInfo) => {
@@ -79,58 +78,55 @@ test.describe('Homepage Tests - Automation Exercise', () => {
 
         const testEmail = 'test@automation.com';
 
-        // Subscribe to newsletter
-        await homePage.subscribeToNewsletter(testEmail);
+        await TestUtils.testStep(page, 'Test newsletter subscription', async () => {
+            // Subscribe to newsletter
+            await homePage.subscribeToNewsletter(testEmail);
 
-        // Verify subscription success (if success message exists)
-        try {
-            await homePage.verifySubscriptionSuccess();
-        } catch (error) {
-            // Handle if no success message appears
-            console.log('No success message found for subscription');
-        }
-
-        // Take conditional screenshot
-        await TestUtils.takeConditionalScreenshot(page, 'newsletter-subscription', testInfo);
+            // Verify subscription success (if success message exists)
+            try {
+                await homePage.verifySubscriptionSuccess();
+            } catch (error) {
+                // Handle if no success message appears
+                console.log('No success message found for subscription');
+            }
+        }, { screenshot: true });
     });
 
     test('Verify navigation links functionality', async ({ homePage, page }, testInfo) => {
         await allure.story('Navigation Links');
         await allure.description('Verify that navigation links redirect to correct pages');
 
-        // Test Products link
-        await homePage.clickNavigationLink('products');
-        await expect(page).toHaveURL(/.*products.*/);
-        await page.goBack();
+        await TestUtils.recordStepEvidence(page, 'Test navigation links', async () => {
+            // Test Products link
+            await homePage.clickNavigationLink('products');
+            await expect(page).toHaveURL(/.*products.*/);
+            await page.goBack();
 
-        // Test Contact Us link
-        await homePage.clickNavigationLink('contact');
-        await expect(page).toHaveURL(/.*contact_us.*/);
-        await page.goBack();
+            // Test Contact Us link
+            await homePage.clickNavigationLink('contact');
+            await expect(page).toHaveURL(/.*contact_us.*/);
+            await page.goBack();
 
-        // Test Signup/Login link
-        await homePage.clickNavigationLink('signup');
-        await expect(page).toHaveURL(/.*login.*/);
-        await page.goBack();
-
-        // Take conditional screenshot
-        await TestUtils.takeConditionalScreenshot(page, 'navigation-links-test', testInfo);
+            // Test Signup/Login link
+            await homePage.clickNavigationLink('signup');
+            await expect(page).toHaveURL(/.*login.*/);
+            await page.goBack();
+        });
     });
 
     test('Verify categories section', async ({ homePage, page }, testInfo) => {
         await allure.story('Categories Section');
         await allure.description('Verify that categories section displays product categories');
 
-        // Get categories list
-        const categories = await homePage.getCategoriesList();
+        await TestUtils.testStep(page, 'Verify categories section', async () => {
+            // Get categories list
+            const categories = await homePage.getCategoriesList();
 
-        // Verify categories exist
-        expect(categories.length).toBeGreaterThan(0);
+            // Verify categories exist
+            expect(categories.length).toBeGreaterThan(0);
 
-        console.log('Available categories:', categories);
-
-        // Take conditional screenshot
-        await TestUtils.takeConditionalScreenshot(page, 'categories-section', testInfo);
+            console.log('Available categories:', categories);
+        }, { screenshot: true });
     });
 
     test('Verify brands section', async ({ homePage, page }, testInfo) => {

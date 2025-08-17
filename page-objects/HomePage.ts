@@ -1,7 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class HomePage {
-    readonly page: Page;
+export class HomePage extends BasePage {
     readonly logo: Locator;
     readonly navigationMenu: Locator;
     readonly homeLink: Locator;
@@ -26,7 +26,7 @@ export class HomePage {
     readonly carouselNextButton: Locator;
 
     constructor(page: Page) {
-        this.page = page;
+        super(page);
 
         // Header elements
         this.logo = page.locator('img[alt="Website for automation practice"]');
@@ -59,13 +59,8 @@ export class HomePage {
 
     async navigateToHomePage(): Promise<void> {
         await this.page.goto('https://www.automationexercise.com/');
-        // Use domcontentloaded instead of networkidle for faster loading
-        // and add timeout to handle mixed content blocking
-        try {
-            await this.page.waitForLoadState('domcontentloaded', { timeout: 15000 });
-        } catch (error) {
-            console.log('Page load timeout - continuing with loaded DOM');
-        }
+        // Use the enhanced waitForPageLoad method from BasePage
+        await this.waitForPageLoad(15000);
 
         // Wait for main elements to be visible as a backup
         await this.logo.waitFor({ state: 'visible', timeout: 10000 });
@@ -210,12 +205,5 @@ export class HomePage {
 
         // Reset to desktop
         await this.page.setViewportSize({ width: 1920, height: 1080 });
-    }
-
-    async takeScreenshot(name: string): Promise<void> {
-        await this.page.screenshot({
-            path: `test-results/screenshots/${name}.png`,
-            fullPage: true
-        });
     }
 }
