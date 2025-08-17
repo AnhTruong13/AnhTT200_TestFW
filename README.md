@@ -49,6 +49,9 @@ npm run test:debug
 # Run homepage tests only
 npm run test:homepage
 
+# Run signup tests only
+npx playwright test tests/signup.spec.ts
+
 # Run integration tests
 npm run test:integration
 ```
@@ -78,10 +81,12 @@ npm run clean:evidence
 ├── page-objects/               # Page Object Model classes
 │   ├── BasePage.ts             # Base page with common functionality
 │   ├── HomePage.ts             # Homepage specific methods and locators
-│   └── ProductsPage.ts         # Products page methods and locators
+│   ├── ProductsPage.ts         # Products page methods and locators
+│   └── SignupPage.ts           # Signup/Login page methods and locators
 ├── tests/                      # Test specifications
 │   ├── homepage.spec.ts        # Homepage functionality tests (11 tests)
-│   └── homepage-integration.spec.ts  # Integration tests (4 tests)
+│   ├── homepage-integration.spec.ts  # Integration tests (4 tests)
+│   └── signup.spec.ts          # Signup/Login functionality tests (10 tests)
 ├── utils/                      # Utility functions and helpers
 │   ├── TestUtils.ts            # Screenshot, evidence, and test utilities
 │   ├── fixtures.ts             # Custom Playwright fixtures
@@ -89,6 +94,7 @@ npm run clean:evidence
 ├── allure-results/             # Raw Allure test results (JSON)
 ├── allure-report/              # Generated Allure HTML reports
 ├── manual-steps_AllTests.md    # Manual testing steps documentation
+├── manual-steps_SignupTests.md # Signup manual testing procedures
 ├── HOMEPAGE_TESTS_README.md    # Detailed test documentation
 └── playwright.config.ts       # Playwright configuration
 ```
@@ -107,6 +113,18 @@ npm run clean:evidence
 - Scroll to top functionality with enhanced reliability
 - Page performance and loading metrics
 - Console error monitoring and handling
+
+### Signup Tests (10 tests)
+- Signup page elements visibility verification
+- Complete user registration with valid data
+- Error handling for existing email addresses
+- Form validation with empty required fields
+- Invalid email format validation and testing
+- Login functionality with valid credentials
+- Login error handling with invalid credentials
+- Empty credentials validation testing
+- Form field constraints and input validation
+- UI navigation and responsive design testing
 
 ### Integration Tests (4 tests)
 - Complete user journey (Homepage → Products → Product Details)

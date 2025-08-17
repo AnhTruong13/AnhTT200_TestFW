@@ -1,17 +1,6 @@
 
 # Manual Test Steps for All Automated Scenarios
 
-## Test Suite Overview
-This document provides manual testing procedures for all automated tests in the framework:
-- **Homepage Tests**: 11 tests covering homepage functionality and navigation
-- **Signup/Login Tests**: 10 tests covering user registration and authentication
-- **Integration Tests**: 4 tests covering complete user journeys
-
-## Quick Reference
-- **Homepage Manual Steps**: See sections below for homepage testing
-- **Signup Manual Steps**: See `manual-steps_SignupTests.md` for detailed signup/login procedures
-- **Integration Manual Steps**: See sections below for integration testing
-
 ## Recent Framework Improvements (August 2025)
 
 ### New Features Added:
@@ -168,83 +157,4 @@ This document provides manual testing procedures for all automated tests in the 
 6. Take a screenshot of the fully loaded page.
 7. Note the page load time for performance reference.
 
----
 
-## Signup/Login Tests (10 tests)
-
-For comprehensive manual testing procedures for signup and login functionality, please refer to:
-
-**📄 [manual-steps_SignupTests.md](manual-steps_SignupTests.md)**
-
-This document covers:
-- Complete user registration testing
-- Login functionality verification
-- Form validation testing
-- Error handling scenarios
-- Input constraint testing
-- Responsive design verification
-- UI/UX element testing
-
----
-
-## Integration Tests Manual Steps
-
-### Integration Test 1: Complete user journey
-1. Start at homepage: https://www.automationexercise.com/
-2. Navigate to Products page via navigation menu
-3. Select a specific product
-4. Verify product details page loads
-5. Navigate back to homepage
-6. Verify all navigation works smoothly
-7. Take screenshots at each step
-
-### Integration Test 2: Responsive testing across viewports
-1. Test homepage at desktop resolution (1280x720)
-2. Test homepage at tablet resolution (768x1024)
-3. Test homepage at mobile resolution (375x667)
-4. Verify all elements adapt properly
-5. Check navigation functionality at each resolution
-6. Take screenshots for each viewport size
-
-### Integration Test 3: Interactive elements testing
-1. Test all clickable elements on homepage
-2. Verify hover states work properly
-3. Test form interactions (newsletter subscription)
-4. Verify carousel controls respond correctly
-5. Test scroll behaviors and animations
-6. Document any non-functional elements
-
-### Integration Test 4: Navigation verification
-1. Test all navigation links from homepage
-2. Verify proper page redirections
-3. Check for any broken links
-4. Test browser back/forward functionality
-5. Verify consistent navigation behavior
-6. Document navigation performance
-
----
-
-## Test Execution Summary
-
-### Total Test Coverage
-- **Homepage Tests**: 11 tests
-- **Signup/Login Tests**: 10 tests  
-- **Integration Tests**: 4 tests
-- **Total Manual Procedures**: 25 test scenarios
-
-### Manual Testing Checklist
-- [ ] All homepage functionality verified
-- [ ] Signup and login processes tested (see signup manual steps)
-- [ ] Integration scenarios completed
-- [ ] Cross-browser testing performed
-- [ ] Responsive design verified
-- [ ] Performance metrics documented
-- [ ] All screenshots captured
-- [ ] Error scenarios tested
-
-### Notes for Testers
-- Use incognito/private browsing for clean test conditions
-- Clear browser cache between test runs
-- Test on multiple browsers (Chrome, Firefox, Safari, Edge)
-- Document any deviations from expected behavior
-- Save screenshots for evidence and reporting
