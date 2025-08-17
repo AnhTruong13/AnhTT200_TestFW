@@ -3,44 +3,35 @@ import * as fs from 'fs';
 
 export class TestUtils {
     /**
-     * Takes a screenshot and attaches i            console.log(`Fallback viewport screenshot saved: ${screenshotPath}`);
-        }
-    }
-
-    /**
-     * Takes a viewport-only screenshot (safe for responsive testing)
+     * Enhanced page readiness check with networkidle fallbacks
+     * Matches BasePage waitForPageLoad() approach for consistency
      * @param page - Playwright page object
-     * @param testName - Name of the test for screenshot filename
+     * @param timeout - Maximum wait time in milliseconds (default: 30000)
      */
-    static async takeViewportScreenshot(page: Page, testName: string): Promise<void> {
-        const timestamp = Date.now();
-        const screenshotDir = 'Evidence/screenshots';
-
-        // Create screenshots directory if it doesn't exist
-        if (!fs.existsSync(screenshotDir)) {
-            fs.mkdirSync(screenshotDir, { recursive: true });
-        }
-
-        const screenshotPath = `${screenshotDir}/${testName}-${timestamp}.png`;
-
+    static async waitForPageReady(page: Page, timeout: number = 30000): Promise<void> {
         try {
-            // Always use viewport screenshot for safety
-            await page.screenshot({ path: screenshotPath, fullPage: false });
-            console.log(`Viewport screenshot saved: ${screenshotPath}`);
+            // First ensure DOM is ready
+            await page.waitForLoadState('domcontentloaded', { timeout: timeout / 3 });
 
-            // Attach to Allure report
-            await test.info().attach(`${testName}-viewport-screenshot`, {
-                body: await page.screenshot({ fullPage: false }),
-                contentType: 'image/png',
-            });
-        } catch (error: any) {
-            console.error(`Viewport screenshot failed for ${testName}: ${error.message}`);
-            // Don't throw the error to prevent test failure
+            // Try network idle, but with fallback
+            try {
+                await page.waitForLoadState('networkidle', { timeout: timeout / 2 });
+            } catch (networkError) {
+                console.log('Network idle timeout - using load state fallback');
+                await page.waitForLoadState('load', { timeout: timeout / 3 });
+            }
+
+            // Small buffer for dynamic content
+            await page.waitForTimeout(500);
+
+        } catch (error) {
+            console.log(`Page ready timeout after ${timeout}ms - continuing with current state`);
+            // Don't throw - let the calling code handle the situation
         }
     }
 
     /**
-     * Setup screenshot capture after each test in a describe blockhe test report
+     * Takes a screenshot and attaches it to the test report
      * @param page - Playwright page object
      * @param testName - Name of the test for screenshot filename
      */
@@ -82,6 +73,38 @@ export class TestUtils {
                 console.error(`Both full page and viewport screenshots failed for ${testName}: ${fallbackError.message}`);
                 // Don't throw the error to prevent test failure due to screenshot issues
             }
+        }
+    }
+
+    /**
+     * Takes a viewport-only screenshot (safe for responsive testing)
+     * @param page - Playwright page object
+     * @param testName - Name of the test for screenshot filename
+     */
+    static async takeViewportScreenshot(page: Page, testName: string): Promise<void> {
+        const timestamp = Date.now();
+        const screenshotDir = 'Evidence/screenshots';
+
+        // Create screenshots directory if it doesn't exist
+        if (!fs.existsSync(screenshotDir)) {
+            fs.mkdirSync(screenshotDir, { recursive: true });
+        }
+
+        const screenshotPath = `${screenshotDir}/${testName}-${timestamp}.png`;
+
+        try {
+            // Always use viewport screenshot for safety
+            await page.screenshot({ path: screenshotPath, fullPage: false });
+            console.log(`Viewport screenshot saved: ${screenshotPath}`);
+
+            // Attach to Allure report
+            await test.info().attach(`${testName}-viewport-screenshot`, {
+                body: await page.screenshot({ fullPage: false }),
+                contentType: 'image/png',
+            });
+        } catch (error: any) {
+            console.error(`Viewport screenshot failed for ${testName}: ${error.message}`);
+            // Don't throw the error to prevent test failure
         }
     }
 
@@ -154,46 +177,36 @@ export class TestUtils {
         try {
             // Get page dimensions
             const pageHeight = await page.evaluate(() => document.body.scrollHeight);
-            const viewportSize = await page.viewportSize();
-            const viewportHeight = viewportSize?.height || 720;
+            const viewportHeight = await page.evaluate(() => window.innerHeight);
 
-            console.log(`Page height: ${pageHeight}px, taking sectioned screenshots`);
-
-            // Take viewport screenshot first (always safe)
-            const viewportPath = `${screenshotDir}/${testName}-viewport-${timestamp}.png`;
-            await page.screenshot({ path: viewportPath, fullPage: false });
-
-            // If page is not too long, try full page
-            if (pageHeight <= 30000) {
-                try {
-                    const fullPagePath = `${screenshotDir}/${testName}-fullpage-${timestamp}.png`;
-                    await page.screenshot({ path: fullPagePath, fullPage: true });
-                    console.log(`Full page screenshot saved: ${fullPagePath}`);
-                    return;
-                } catch (error) {
-                    console.log('Full page screenshot failed, continuing with sectioned approach');
-                }
+            if (pageHeight <= sectionHeight) {
+                // Page is not too long, take regular screenshot
+                await this.takeScreenshot(page, testName);
+                return;
             }
 
-            // Take sectioned screenshots for very long pages
-            const sections = Math.ceil(pageHeight / sectionHeight);
-            console.log(`Taking ${sections} section screenshots`);
+            // Take multiple screenshots
+            let currentPosition = 0;
+            let sectionIndex = 1;
 
-            for (let i = 0; i < sections; i++) {
-                const y = i * sectionHeight;
-                const height = Math.min(sectionHeight, pageHeight - y);
-
-                // Scroll to the section
-                await page.evaluate((scrollY) => window.scrollTo(0, scrollY), y);
+            while (currentPosition < pageHeight) {
+                await page.evaluate((y) => window.scrollTo(0, y), currentPosition);
                 await page.waitForTimeout(500); // Wait for scroll to complete
 
-                const sectionPath = `${screenshotDir}/${testName}-section-${i + 1}-${timestamp}.png`;
-                await page.screenshot({
-                    path: sectionPath,
-                    clip: { x: 0, y: 0, width: viewportSize?.width || 1280, height: viewportHeight }
+                const sectionName = `${testName}-section-${sectionIndex}`;
+                const screenshotPath = `${screenshotDir}/${sectionName}-${timestamp}.png`;
+
+                await page.screenshot({ path: screenshotPath, fullPage: false });
+                console.log(`Long page section screenshot saved: ${screenshotPath}`);
+
+                // Attach to Allure report
+                await test.info().attach(sectionName, {
+                    body: await page.screenshot({ fullPage: false }),
+                    contentType: 'image/png',
                 });
 
-                console.log(`Section ${i + 1}/${sections} screenshot saved: ${sectionPath}`);
+                currentPosition += Math.min(sectionHeight, viewportHeight);
+                sectionIndex++;
             }
 
             // Scroll back to top
@@ -201,152 +214,25 @@ export class TestUtils {
             await page.waitForTimeout(500);
 
         } catch (error) {
-            console.log(`Long page screenshot failed: ${error}`);
-            // Final fallback - just take viewport screenshot
-            const fallbackPath = `${screenshotDir}/${testName}-fallback-${timestamp}.png`;
-            await page.screenshot({ path: fallbackPath, fullPage: false });
-            console.log(`Fallback screenshot saved: ${fallbackPath}`);
+            console.log(`Long page screenshots failed for ${testName}: ${error}`);
+            // Fallback to regular screenshot
+            await this.takeScreenshot(page, testName);
         }
     }
 
     /**
-     * Setup screenshot capture after each test in a describe block
-     * Call this function inside your test.describe block
-     */
-    static setupScreenshots(): void {
-        test.afterEach(async ({ page }, testInfo: TestInfo) => {
-            await TestUtils.takeScreenshot(page, testInfo.title);
-        });
-    }
-
-    /**
-     * Generates a random email address for testing
-     * @param domain - Optional domain (defaults to 'test.com')
-     */
-    static generateRandomEmail(domain: string = 'test.com'): string {
-        const randomString = Math.random().toString(36).substring(2, 15);
-        return `user_${randomString}@${domain}`;
-    }
-
-    /**
-     * Generates a random string of specified length
-     * @param length - Length of the string to generate
-     */
-    static generateRandomString(length: number = 8): string {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return result;
-    }
-
-    /**
-     * Waits for network idle state and DOM to be fully loaded with fallback strategies
-     * @param page - Playwright page object
-     * @param timeout - Timeout in milliseconds (default: 30000)
-     */
-    static async waitForPageReady(page: Page, timeout: number = 30000): Promise<void> {
-        try {
-            // First ensure DOM is ready
-            await page.waitForLoadState('domcontentloaded', { timeout: timeout / 3 });
-
-            // Try network idle, but with fallback
-            try {
-                await page.waitForLoadState('networkidle', { timeout: timeout / 2 });
-            } catch (networkError) {
-                console.log('Network idle timeout - using load state fallback');
-                await page.waitForLoadState('load', { timeout: timeout / 3 });
-            }
-
-            // Small buffer for dynamic content
-            await page.waitForTimeout(500);
-
-        } catch (error) {
-            console.log(`Page ready timeout after ${timeout}ms - continuing with current state`);
-            // Don't throw - let the calling code handle the situation
-        }
-    }
-
-    /**
-     * Scrolls to an element and ensures it's visible
-     * @param page - Playwright page object
-     * @param selector - CSS selector or locator
-     */
-    static async scrollToElement(page: Page, selector: string): Promise<void> {
-        const element = page.locator(selector);
-        await element.scrollIntoViewIfNeeded();
-        await expect(element).toBeVisible();
-    }
-
-    /**
-     * Gets current timestamp in a readable format
-     */
-    static getCurrentTimestamp(): string {
-        return new Date().toISOString().replace(/[:.]/g, '-');
-    }
-
-    /**
-     * Creates test data directories if they don't exist
-     */
-    static ensureTestDataDirectory(): void {
-        const evidenceDir = 'Evidence';
-        const videoDir = 'Evidence/video';
-        const screenshotsDir = 'Evidence/screenshots';
-        const tracesDir = 'Evidence/traces';
-
-        // Create all necessary directories
-        [evidenceDir, videoDir, screenshotsDir, tracesDir].forEach(dir => {
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-            }
-        });
-    }
-
-    /**
-     * Waits for an element to be visible with custom timeout
-     * @param page - Playwright page object
-     * @param selector - CSS selector
-     * @param timeout - Timeout in milliseconds (default: 10000)
-     */
-    static async waitForElement(page: Page, selector: string, timeout: number = 10000): Promise<void> {
-        await page.locator(selector).waitFor({ state: 'visible', timeout });
-    }
-
-    /**
-     * Captures and logs console messages during test execution
-     * @param page - Playwright page object
-     */
-    static setupConsoleLogging(page: Page): void {
-        page.on('console', msg => {
-            if (msg.type() === 'error') {
-                console.log(`Console Error: ${msg.text()}`);
-            } else if (msg.type() === 'warning') {
-                console.log(`Console Warning: ${msg.text()}`);
-            }
-        });
-    }
-
-    /**
-     * Takes a conditional screenshot based on test status or environment
+     * Takes a conditional screenshot based on test status and environment variables
      * @param page - Playwright page object
      * @param testName - Name of the test for screenshot filename
-     * @param testInfo - Playwright test info object (optional, used to check test status)
-     * @param force - Force screenshot regardless of conditions (default: false)
+     * @param testInfo - Playwright test info object
+     * @param forceScreenshot - Force screenshot regardless of conditions
      */
-    static async takeConditionalScreenshot(page: Page, testName: string, testInfo?: TestInfo, force: boolean = false): Promise<void> {
-        // Conditions for taking screenshot:
-        // 1. Test is failing/failed
-        // 2. Force flag is true
-        // 3. Environment variable SCREENSHOTS=all
-        // 4. CI environment (for debugging CI issues)
-
-        const shouldTakeScreenshot =
-            force ||
-            (testInfo && (testInfo.status === 'failed' || testInfo.status === 'timedOut')) ||
-            process.env.SCREENSHOTS === 'all' ||
-            process.env.CI ||
-            process.env.NODE_ENV === 'test';
+    static async takeConditionalScreenshot(page: Page, testName: string, testInfo: TestInfo, forceScreenshot: boolean = false): Promise<void> {
+        const screenshotMode = process.env.SCREENSHOTS || 'minimal';
+        const shouldTakeScreenshot = forceScreenshot ||
+            testInfo.status === 'failed' ||
+            testInfo.status === 'timedOut' ||
+            screenshotMode === 'all';
 
         if (shouldTakeScreenshot) {
             await this.takeScreenshot(page, testName);
@@ -424,26 +310,6 @@ export class TestUtils {
     }
 
     /**
-     * Enables full video recording mode for comprehensive evidence collection
-     * Note: This method documents the video recording capability
-     */
-    static getVideoRecordingInfo(): string {
-        const videoMode = process.env.VIDEO_MODE || 'retain-on-failure';
-        const screenshotMode = process.env.SCREENSHOTS || 'minimal';
-
-        return `📹 Video Recording Configuration:
-        - Video Mode: ${videoMode}
-        - Screenshot Mode: ${screenshotMode}
-        - Output Directory: Evidence/video/
-        - Resolution: 1280x720
-        
-        Available modes:
-        - VIDEO_MODE=all: Record all test steps
-        - VIDEO_MODE=off: No video recording  
-        - VIDEO_MODE=retain-on-failure: Record only failed tests (default)`;
-    }
-
-    /**
      * Creates a test step with optional video evidence
      * @param page - Playwright page object
      * @param stepName - Name of the test step
@@ -457,6 +323,7 @@ export class TestUtils {
         options: {
             screenshot?: boolean;
             critical?: boolean;
+            timeout?: number;
         } = {}
     ): Promise<T> {
         console.log(`📋 Executing step: ${stepName}`);
@@ -481,5 +348,162 @@ export class TestUtils {
             await this.takeScreenshot(page, `${stepName}-FAILED`);
             throw error;
         }
+    }
+
+    /**
+     * Scrolls to an element and ensures it's visible
+     * @param page - Playwright page object
+     * @param selector - CSS selector or locator
+     */
+    static async scrollToElement(page: Page, selector: string): Promise<void> {
+        const element = page.locator(selector);
+        await element.scrollIntoViewIfNeeded();
+        await expect(element).toBeVisible();
+    }
+
+    /**
+     * Gets current timestamp in a readable format
+     */
+    static getCurrentTimestamp(): string {
+        return new Date().toISOString().replace(/[:.]/g, '-');
+    }
+
+    /**
+     * Creates test data directories if they don't exist
+     */
+    static ensureTestDataDirectory(): void {
+        const evidenceDir = 'Evidence';
+        const videoDir = 'Evidence/video';
+        const screenshotsDir = 'Evidence/screenshots';
+        const tracesDir = 'Evidence/traces';
+
+        // Create all necessary directories
+        [evidenceDir, videoDir, screenshotsDir, tracesDir].forEach(dir => {
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+                console.log(`Created directory: ${dir}`);
+            }
+        });
+    }
+
+    /**
+     * Generates a random email address for testing
+     * @param domain - Email domain (default: example.com)
+     */
+    static generateRandomEmail(domain: string = 'example.com'): string {
+        const randomString = this.generateRandomString(8);
+        return `test_${randomString}@${domain}`;
+    }
+
+    /**
+     * Generates a random string of specified length
+     * @param length - Length of the string to generate
+     */
+    static generateRandomString(length: number = 8): string {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result;
+    }
+
+    /**
+     * Enables full video recording mode for comprehensive evidence collection
+     * Note: This method documents the video recording capability
+     */
+    static getVideoRecordingInfo(): string {
+        const videoMode = process.env.VIDEO_MODE || 'retain-on-failure';
+        const screenshotMode = process.env.SCREENSHOTS || 'minimal';
+
+        return `📹 Video Recording Configuration:
+        - Video Mode: ${videoMode}
+        - Screenshot Mode: ${screenshotMode}
+        - Output Directory: Evidence/video/
+        - Resolution: 1280x720
+        
+        Available modes:
+        - VIDEO_MODE=all: Record all test steps
+        - VIDEO_MODE=off: No video recording  
+        - VIDEO_MODE=retain-on-failure: Record only failed tests (default)`;
+    }
+
+    /**
+     * Setup screenshot capture after each test in a describe block
+     * @param page - Playwright page object
+     */
+    static setupScreenshotAfterEach(page: Page): void {
+        test.afterEach(async ({ }, testInfo) => {
+            if (testInfo.status !== testInfo.expectedStatus) {
+                // Test failed, take screenshot
+                await this.takeScreenshot(page, `${testInfo.title}-failed`);
+            }
+        });
+    }
+
+    /**
+     * Waits for an element to be visible with custom timeout
+     * @param page - Playwright page object
+     * @param selector - CSS selector
+     * @param timeout - Timeout in milliseconds (default: 10000)
+     */
+    static async waitForElement(page: Page, selector: string, timeout: number = 10000): Promise<void> {
+        await page.locator(selector).waitFor({ state: 'visible', timeout });
+    }
+
+    /**
+     * Performs a safe click with retry logic
+     * @param page - Playwright page object
+     * @param selector - CSS selector
+     * @param options - Click options
+     */
+    static async safeClick(page: Page, selector: string, options: {
+        timeout?: number;
+        retries?: number;
+        waitForNavigationAfter?: boolean;
+    } = {}): Promise<void> {
+        const timeout = options.timeout || 10000;
+        const retries = options.retries || 3;
+        let lastError: Error | null = null;
+
+        for (let i = 0; i < retries; i++) {
+            try {
+                await page.locator(selector).click({ timeout });
+
+                if (options.waitForNavigationAfter) {
+                    await page.waitForLoadState('domcontentloaded');
+                }
+                return; // Success
+            } catch (error) {
+                lastError = error as Error;
+                console.log(`Click attempt ${i + 1} failed: ${error}. Retrying...`);
+                await page.waitForTimeout(1000); // Wait before retry
+            }
+        }
+
+        throw new Error(`Safe click failed after ${retries} attempts. Last error: ${lastError?.message}`);
+    }
+
+    /**
+     * Sets up console logging to capture browser console messages, errors, and failed requests
+     * @param page - Playwright page object
+     */
+    static setupConsoleLogging(page: Page): void {
+        page.on('console', (msg) => {
+            const type = msg.type();
+            const text = msg.text();
+            console.log(`🌐 Browser ${type}: ${text}`);
+        });
+
+        page.on('pageerror', (error) => {
+            console.error('❌ Page error:', error.message);
+        });
+
+        page.on('requestfailed', (request) => {
+            const failure = request.failure();
+            console.warn(`⚠️ Failed request: ${request.url()} - ${failure?.errorText || 'Unknown error'}`);
+        });
+
+        console.log('🔍 Console logging setup complete for browser events');
     }
 }
