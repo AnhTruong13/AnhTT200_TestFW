@@ -4,17 +4,17 @@ This comprehensive test automation framework uses [Playwright](https://playwrigh
 
 ## 🚀 Features
 
-- **Page Object Model (POM)** - Organized, maintainable test architecture
-- **Playwright Fixtures** - Custom fixtures for enhanced test setup
-- **Video Recording** - Automatic video capture on test failures (1280x720 WebM)
+- **Unified Page Object Model (POM)** - Enhanced architecture with BasePage inheritance for consistency
+- **Enhanced TestUtils** - Unified waiting strategies with networkidle fallbacks and smart timeout handling
+- **Optional Video Evidence Recording** - Complete step-by-step test documentation with VIDEO_MODE control
+- **Robust Timeout Configuration** - 60s test timeout, 15s action timeout, 30s navigation timeout, 10s assertion timeout
 - **Smart Screenshots** - Viewport screenshots to avoid size limits (only on failure)
 - **Allure + HTML Reporting** - Rich reports with visual evidence and interactive features
 - **Evidence Collection** - Organized storage of test artifacts with automatic cleanup
 - **Auto Cleanup** - Empty video directories automatically removed after test runs
 - **Multi-Browser Support** - Chromium, Firefox, Safari, Edge, Chrome
-- **Responsive Testing** - Mobile, tablet, and desktop viewport testing
-- **Mixed Content Handling** - Graceful handling of HTTPS/HTTP warnings
-- **Error Recovery** - Robust error handling and automatic fallbacks
+- **Cross-Platform Compatibility** - Seamless Windows/macOS/Linux support with cross-env
+- **Enhanced Error Recovery** - Unified waiting strategies and graceful fallback mechanisms
 
 ## 🛠️ Getting Started
 
@@ -101,18 +101,18 @@ npm run clean:evidence
 │   ├── screenshots/            # Test screenshots with fallback handling
 │   ├── traces/                 # Playwright traces for debugging
 │   └── README.md               # Evidence documentation
-├── page-objects/               # Page Object Model classes
-│   ├── BasePage.ts             # Base page with common functionality
-│   ├── HomePage.ts             # Homepage specific methods and locators
-│   ├── ProductsPage.ts         # Products page methods and locators
-│   └── SignupPage.ts           # Signup/Login page methods and locators
-├── tests/                      # Test specifications
-│   ├── homepage.spec.ts        # Homepage functionality tests (11 tests)
-│   ├── homepage-integration.spec.ts  # Integration tests (4 tests)
-│   └── signup.spec.ts          # Signup/Login functionality tests (10 tests)
-├── utils/                      # Utility functions and helpers
-│   ├── TestUtils.ts            # Screenshot, evidence, and test utilities
-│   ├── fixtures.ts             # Custom Playwright fixtures
+├── page-objects/               # Enhanced Page Object Model with unified architecture
+│   ├── BasePage.ts             # Foundation class with robust waitForPageLoad() and timeout handling
+│   ├── HomePage.ts             # Homepage methods extending BasePage for consistency
+│   ├── ProductsPage.ts         # Products page with enhanced retry logic and BasePage integration
+│   └── SignupPage.ts           # Signup/Login methods with unified BasePage architecture
+├── tests/                      # Test specifications with enhanced TestUtils integration
+│   ├── homepage.spec.ts        # Homepage functionality tests (11 tests) with standardized waiting
+│   ├── homepage-integration.spec.ts  # Integration tests (4 tests) with TestUtils methods
+│   └── signup.spec.ts          # Signup/Login functionality tests (10 tests) with unified approach
+├── utils/                      # Enhanced utility functions and helpers
+│   ├── TestUtils.ts            # Enhanced utilities with waitForPageReady(), testStep(), recordStepEvidence()
+│   ├── fixtures.ts             # Custom Playwright fixtures with BasePage integration
 │   └── screenshot-examples.md  # Screenshot utility documentation
 ├── allure-results/             # Raw Allure test results (JSON)
 ├── allure-report/              # Generated Allure HTML reports
@@ -157,14 +157,34 @@ npm run clean:evidence
 
 ## 🔧 Recent Enhancements (August 2025)
 
+### 🏗️ **Architecture Consolidation - Latest Update**
+- **Unified BasePage Architecture**: All page objects now extend BasePage for consistent behavior and timeout handling
+- **Enhanced TestUtils Methods**: Standardized `waitForPageReady()` with networkidle fallbacks across all tests
+- **Architecture Validation**: 21/21 tests passing with unified inheritance structure and robust timeout handling
+- **Consistent Method Usage**: All page objects use standardized waiting strategies and enhanced error recovery
+
+### Enhanced Page Object Architecture
+- **BasePage Foundation**: Robust `waitForPageLoad()` with networkidle fallbacks and graceful error handling
+- **HomePage Integration**: Now extends BasePage, removed duplicate methods, uses enhanced timeout strategies
+- **SignupPage Enhancement**: Updated to use BasePage methods consistently across all navigation
+- **ProductsPage Optimization**: Enhanced with 3-attempt retry logic and 45s timeout for slow pages
+- **Unified Inheritance**: All page objects follow consistent patterns with standardized timeout handling
+
+### TestUtils Enhancements
+- **waitForPageReady()**: Enhanced method with networkidle fallbacks matching BasePage approach
+- **testStep()**: Comprehensive video and screenshot evidence recording for test steps
+- **recordStepEvidence()**: Granular step-by-step video evidence collection
+- **Smart Timeout Handling**: Consistent fallback strategies across all utility methods
+- **Video Evidence Integration**: Complete step-by-step recording with VIDEO_MODE control
+
 ### Configuration Improvements
+- **Enhanced Timeout Configuration**: 60s test timeout, 15s action timeout, 30s navigation timeout, 10s assertion timeout
 - **Dual Reporter Setup**: Both Allure and HTML reports generated simultaneously
 - **Smart Screenshot Strategy**: Viewport screenshots only on failure to prevent size limit issues
-- **Enhanced Video Recording**: 1280x720 resolution, retain-on-failure mode
+- **Enhanced Video Recording**: 1280x720 resolution, retain-on-failure mode with optional full recording
 - **Output Directory**: Centralized evidence collection in `Evidence/video/`
 - **Cross-Browser Testing**: 5 browsers (Chromium, Firefox, Safari, Edge, Chrome)
 - **Cross-Platform NPM Scripts**: All test commands now use `cross-env` for consistent environment variable handling across Windows, macOS, and Linux
-- **Enhanced Timeout Configuration**: Optimized timeouts for complex web applications (60s test timeout, 15s action timeout, 10s assertion timeout)
 
 ### Signup Page Test Suite (NEW)
 - **Complete POM Implementation**: SignupPage with comprehensive form interactions
@@ -257,6 +277,8 @@ test('Verify homepage loads successfully', async ({ homePage }) => {
 - **[Homepage Tests Documentation](HOMEPAGE_TESTS_README.md)** - Detailed homepage test specifications
 - **[Signup Tests Documentation](SIGNUP_TESTS_README.md)** - Complete signup/login test guide
 - **[Signup Manual Steps](manual-steps_SignupTests.md)** - Manual signup testing procedures
+- **[Video Evidence Guide](VIDEO_EVIDENCE_GUIDE.md)** - Complete video recording system documentation
+- **[Framework Updates Summary](FRAMEWORK_UPDATES_SUMMARY.md)** - Comprehensive architecture updates and enhancements
 - **[Evidence Directory Guide](Evidence/README.md)** - Test artifacts documentation
 - **[Screenshot Utilities](utils/screenshot-examples.md)** - Screenshot handling examples
 
@@ -325,9 +347,11 @@ This project is for educational and testing purposes.
 ---
 
 *Framework last updated: August 17, 2025*
-*Total tests: 15 (11 homepage + 4 integration)*
+*Total tests: 25 (11 homepage + 10 signup + 4 integration)*
+*Architecture: Unified BasePage inheritance with enhanced timeout handling*
 *Browsers supported: 5 (Chromium, Firefox, Safari, Edge, Chrome)*
 *Evidence types: 3 (Videos, Screenshots, Traces)*
+*Latest enhancements: Architecture consolidation and video evidence recording*
 - [Playwright Docs](https://playwright.dev/docs/intro)
 - [TypeScript Docs](https://www.typescriptlang.org/docs/)
 
