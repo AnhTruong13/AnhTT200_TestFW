@@ -5,16 +5,27 @@
 This document provides manual testing procedures for all automated tests in the framework:
 - **Homepage Tests**: 11 tests covering homepage functionality and navigation
 - **Signup/Login Tests**: 10 tests covering user registration and authentication
+- **Login Tests**: 15 tests covering POM + Fixtures + UI Templates approaches
+- **UI Template Tests**: 30 tests covering complete template system (Forms, Lists, Modals)
 - **Integration Tests**: 4 tests covering complete user journeys
 
 ## Quick Reference
 - **Homepage Manual Steps**: See sections below for homepage testing
 - **Signup Manual Steps**: See `manual-steps_SignupTests.md` for detailed signup/login procedures
+- **Login Manual Steps**: See `manual-steps_LoginTests.md` for POM + Templates login testing
 - **Integration Manual Steps**: See sections below for integration testing
 
 ## Recent Framework Improvements (August 2025)
 
-### New Features Added:
+### Major New Features Added:
+- **UI Template System**: Complete template architecture with BaseTemplate, FormTemplate, ListTemplate, ModalTemplate
+- **Template Factory**: Centralized template registration and management system
+- **Login Test Suite**: Comprehensive 15-test suite demonstrating POM + Fixtures + UI Templates
+- **Multiple Testing Approaches**: Traditional POM, modern UI Templates, and combined workflows
+- **Enhanced Fixtures**: Clean dependency injection with loginPage and template support
+- **Template Performance**: Form operations complete in < 3 seconds, validation in < 500ms
+
+### Existing Features Enhanced:
 - **Video Recording**: Tests now record videos on failure for debugging
 - **Enhanced Screenshot Handling**: Automatic fallback for large pages (>32,767px limit)
 - **Allure Reporting**: Comprehensive test reports with visual evidence
@@ -25,9 +36,10 @@ This document provides manual testing procedures for all automated tests in the 
 
 ### Test Artifacts Generated:
 - **Videos**: Saved in `Evidence/video/` (WebM format, 1280x720 resolution)
-- **Screenshots**: Saved in `Evidence/screenshots/` with automatic fallback
+- **Screenshots**: Saved in timestamped `Evidence/test-run-YYYY-MM-DD_HH-MM-SS/screenshots/`
 - **Allure Reports**: Available via `npm run report` or `npm run report:open`
 - **Error Context**: Detailed failure information in error-context.md files
+- **Performance Metrics**: Template operation timing and optimization data
 
 ---
 
@@ -185,6 +197,117 @@ This document covers:
 - Input constraint testing
 - Responsive design verification
 - UI/UX element testing
+
+---
+
+## Login Tests - POM + Fixtures + UI Templates (15 tests) 🆕
+
+For comprehensive manual testing procedures for the new login test suite that demonstrates multiple testing approaches, please refer to:
+
+**📄 [manual-steps_LoginTests.md](manual-steps_LoginTests.md)**
+
+This document covers:
+
+### **Login Functionality Testing (6 tests)**
+- Valid login using Page Object Model (POM) approach
+- Valid login using UI Template approach  
+- Invalid login credentials testing (both POM and Template approaches)
+- Empty login form validation with combined approaches
+- Login form field interactions and template validation
+
+### **Signup Functionality Testing (3 tests)**
+- Initial signup form testing (both POM and Template approaches)
+- Existing email signup error handling
+- Form validation and user feedback
+
+### **Combined Workflows Testing (3 tests)**
+- Complete user journey combining POM + Templates approaches
+- Form switching and validation with performance testing
+- Cross-browser login consistency validation
+
+### **Template Registration Testing (1 test)**
+- Custom login template registration and execution
+- Template factory integration and management
+
+### **Advanced Features Tested**
+- **Three Testing Approaches**: Traditional POM, modern UI Templates, combined workflows
+- **Performance Monitoring**: Form operations complete in < 3 seconds
+- **Cross-Browser Testing**: Consistent behavior across Chrome, Firefox, Edge, Safari, WebKit
+- **Error Handling**: Comprehensive error detection and recovery mechanisms
+- **Template Factory**: Dynamic template registration and customization
+- **Evidence Collection**: Comprehensive screenshot and performance documentation
+
+**Key Benefits**: This test suite demonstrates how to combine traditional Page Object Model approaches with modern UI Template automation for maximum testing flexibility and maintainability.
+
+---
+
+## UI Template System Tests (30 tests) 🆕
+
+The framework now includes a comprehensive UI Template system for automated form, list, and modal testing across all browsers:
+
+### **Form Templates (12 tests)**
+- Login form automation and validation
+- Signup form processing and error handling
+- Contact form testing and submission
+- Newsletter subscription form validation
+
+### **List Templates (9 tests)**
+- Product list navigation and interaction
+- Category list management and filtering
+- Search results list processing
+- Navigation menu list validation
+
+### **Modal Templates (9 tests)**
+- Confirmation modal testing and interaction
+- Information dialog validation
+- Form modal processing and submission
+- Alert modal handling and verification
+
+---
+
+## UI Template System Tests (30 tests) 🆕
+
+For comprehensive manual testing procedures for the complete UI Template System, please refer to:
+
+**📄 [manual-steps_UITemplates.md](manual-steps_UITemplates.md)**
+
+This document covers:
+
+### **Form Templates (12 tests)**
+- Login form template automation and validation
+- Signup form template processing and error handling
+- Contact form template testing and submission
+- Newsletter subscription template validation
+- Form field validation and interaction testing
+- Template performance benchmarking (< 3 seconds)
+- Cross-browser form template consistency
+
+### **List Templates (9 tests)**
+- Product list template navigation and interaction
+- Category list template management and filtering  
+- Search results list template processing
+- Navigation menu list template validation
+- List item counting and boundary detection
+- Template list performance optimization
+- Multi-browser list template testing
+
+### **Modal Templates (9 tests)**
+- Confirmation modal template testing and interaction
+- Information dialog template validation
+- Form modal template processing and submission
+- Alert modal template handling and verification
+- Modal detection and state management
+- Template modal performance validation
+- Cross-browser modal template consistency
+
+### **Advanced Template Features**
+- **Template Factory Management**: Dynamic template registration and customization
+- **Performance Optimization**: All template operations complete within defined thresholds
+- **Cross-Browser Testing**: Templates validated across Chrome, Firefox, Edge, Safari, WebKit
+- **Error Recovery**: Comprehensive error detection and graceful fallback mechanisms
+- **Evidence Collection**: Detailed performance metrics and interaction documentation
+
+**Key Benefits**: The UI Template System provides a modern, reusable approach to web element automation, offering significant advantages over traditional element-by-element automation for complex forms, lists, and modals.
 
 ---
 

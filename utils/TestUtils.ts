@@ -1,6 +1,7 @@
 import { test, Page, TestInfo, expect } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+import { TemplateManager } from '../page-objects/templates/TemplateFactory';
 
 export class TestUtils {
     // Static variable to store current test run directory
@@ -363,5 +364,195 @@ export class TestUtils {
             result += characters.charAt(Math.floor(Math.random() * characters.length));
         }
         return result;
+    }
+
+    /**
+     * Creates a template manager for the given page
+     * @param page - Playwright page object
+     * @returns TemplateManager instance
+     */
+    static createTemplateManager(page: Page): TemplateManager {
+        return new TemplateManager(page);
+    }
+
+    /**
+     * Executes a form template workflow with error handling and screenshots
+     * @param page - Playwright page object
+     * @param templateName - Name of the form template to use
+     * @param formData - Data to fill in the form
+     * @param expectedOutcome - Expected result ('success' or 'error')
+     */
+    static async executeFormTemplate(
+        page: Page,
+        templateName: string,
+        formData: Record<string, any>,
+        expectedOutcome: 'success' | 'error' = 'success'
+    ): Promise<void> {
+        const templateManager = this.createTemplateManager(page);
+        const formTemplate = templateManager.getFormTemplate(templateName);
+
+        try {
+            console.log(`📝 Executing form template: ${templateName}`);
+            await this.takeScreenshot(page, `form-${templateName}-start`);
+
+            // Validate form fields first
+            await formTemplate.validateFields();
+
+            // Fill the form
+            await formTemplate.fillForm(formData);
+
+            // Submit the form
+            await formTemplate.submitForm(expectedOutcome);
+
+            await this.takeScreenshot(page, `form-${templateName}-completed`);
+            console.log(`✅ Form template executed successfully: ${templateName}`);
+        } catch (error) {
+            await this.takeScreenshot(page, `form-${templateName}-error`);
+            console.log(`❌ Form template execution failed: ${templateName} - ${error}`);
+            throw error;
+        }
+    }
+
+    /**
+     * Executes a list template workflow with item interaction
+     * @param page - Playwright page object
+     * @param templateName - Name of the list template to use
+     * @param action - Action to perform ('view', 'search', 'sort', etc.)
+     * @param actionData - Data for the action (search term, sort option, etc.)
+     */
+    static async executeListTemplate(
+        page: Page,
+        templateName: string,
+        action: string,
+        actionData?: any
+    ): Promise<any> {
+        const templateManager = this.createTemplateManager(page);
+        const listTemplate = templateManager.getListTemplate(templateName);
+
+        try {
+            console.log(`📋 Executing list template: ${templateName} - ${action}`);
+            await this.takeScreenshot(page, `list-${templateName}-${action}-start`);
+
+            let result;
+
+            switch (action) {
+                case 'view':
+                case 'count':
+                    result = await listTemplate.getItemCount();
+                    await listTemplate.verifyItemsLoaded();
+                    break;
+                case 'search':
+                    if (!actionData) throw new Error('Search term required for search action');
+                    await listTemplate.searchItems(actionData);
+                    result = await listTemplate.getItemCount();
+                    break;
+                case 'sort':
+                    if (!actionData) throw new Error('Sort option required for sort action');
+                    await listTemplate.sortItems(actionData);
+                    result = await listTemplate.getItemCount();
+                    break;
+                case 'clickFirst':
+                    await listTemplate.clickItemByIndex(0);
+                    result = 'clicked';
+                    break;
+                case 'clickByField':
+                    if (!actionData?.field || !actionData?.value) {
+                        throw new Error('Field name and value required for clickByField action');
+                    }
+                    await listTemplate.clickItemByField(actionData.field, actionData.value);
+                    result = 'clicked';
+                    break;
+                case 'loadMore':
+                    await listTemplate.loadMoreItems();
+                    result = await listTemplate.getItemCount();
+                    break;
+                default:
+                    throw new Error(`Unknown list action: ${action}`);
+            }
+
+            await this.takeScreenshot(page, `list-${templateName}-${action}-completed`);
+            console.log(`✅ List template executed successfully: ${templateName} - ${action}`);
+            return result;
+        } catch (error) {
+            await this.takeScreenshot(page, `list-${templateName}-${action}-error`);
+            console.log(`❌ List template execution failed: ${templateName} - ${action} - ${error}`);
+            throw error;
+        }
+    }
+
+    /**
+     * Executes a modal template workflow
+     * @param page - Playwright page object
+     * @param templateName - Name of the modal template to use
+     * @param action - Action to perform ('confirm', 'cancel', 'close', 'verify')
+     * @param expectedData - Expected modal data for verification
+     */
+    static async executeModalTemplate(
+        page: Page,
+        templateName: string,
+        action: string,
+        expectedData?: { title?: string; content?: string; buttons?: string[] }
+    ): Promise<any> {
+        const templateManager = this.createTemplateManager(page);
+        const modalTemplate = templateManager.getModalTemplate(templateName);
+
+        try {
+            console.log(`🔲 Executing modal template: ${templateName} - ${action}`);
+            await modalTemplate.waitForModal();
+            await this.takeScreenshot(page, `modal-${templateName}-${action}-start`);
+
+            let result;
+
+            switch (action) {
+                case 'confirm':
+                    await modalTemplate.confirmModal();
+                    result = 'confirmed';
+                    break;
+                case 'cancel':
+                    await modalTemplate.cancelModal();
+                    result = 'cancelled';
+                    break;
+                case 'close':
+                    await modalTemplate.closeModal();
+                    result = 'closed';
+                    break;
+                case 'closeByEscape':
+                    await modalTemplate.closeByEscape();
+                    result = 'closed by escape';
+                    break;
+                case 'closeByOverlay':
+                    await modalTemplate.closeByOverlay();
+                    result = 'closed by overlay';
+                    break;
+                case 'verify':
+                    if (expectedData?.title) {
+                        await modalTemplate.verifyTitle(expectedData.title);
+                    }
+                    if (expectedData?.content) {
+                        await modalTemplate.verifyContentContains(expectedData.content);
+                    }
+                    if (expectedData?.buttons) {
+                        await modalTemplate.verifyButtons(expectedData.buttons);
+                    }
+                    result = 'verified';
+                    break;
+                case 'getTitle':
+                    result = await modalTemplate.getModalTitle();
+                    break;
+                case 'getContent':
+                    result = await modalTemplate.getModalContent();
+                    break;
+                default:
+                    throw new Error(`Unknown modal action: ${action}`);
+            }
+
+            await this.takeScreenshot(page, `modal-${templateName}-${action}-completed`);
+            console.log(`✅ Modal template executed successfully: ${templateName} - ${action}`);
+            return result;
+        } catch (error) {
+            await this.takeScreenshot(page, `modal-${templateName}-${action}-error`);
+            console.log(`❌ Modal template execution failed: ${templateName} - ${action} - ${error}`);
+            throw error;
+        }
     }
 }

@@ -1,22 +1,32 @@
 
-# Manual Test Steps for All Automated Scenarios
+# Manual Test Steps - Homepage Tests
+
+## Overview
+This document provides comprehensive manual test steps for Homepage functionality testing, covering all 11 automated homepage test scenarios in the framework.
+
+## Test Environment Setup
+
+### Prerequisites
+1. **Browser**: Chrome, Firefox, Safari, Edge, or WebKit (latest version)
+2. **Test Site**: https://www.automationexercise.com
+3. **Screen Resolution**: 1920x1080 or higher recommended
+4. **Network**: Stable internet connection
 
 ## Recent Framework Improvements (August 2025)
 
-### New Features Added:
-- **Video Recording**: Tests now record videos on failure for debugging
-- **Enhanced Screenshot Handling**: Automatic fallback for large pages (>32,767px limit)
-- **Allure Reporting**: Comprehensive test reports with visual evidence
-- **Evidence Directory**: Organized storage for test artifacts (videos, screenshots, traces)
-- **Mixed Content Error Handling**: Graceful handling of HTTPS/HTTP mixed content warnings
-- **Improved Test Stability**: Enhanced page loading and navigation reliability
-- **Enhanced Timeout Configuration**: Optimized timeouts for complex web applications (60s test timeout, 15s action timeout, 30s navigation timeout)
+### Enhanced Homepage Testing Features:
+- **Enhanced Performance Testing**: Realistic thresholds (20s limit) with meaningful performance categorization
+- **Smart Screenshot System**: Conditional screenshot capture with organized evidence storage
+- **Cross-Browser Validation**: Consistent testing across 5 browsers (Chrome, Firefox, Safari, Edge, WebKit)
+- **Improved Timeout Handling**: 60s test timeout, 15s action timeout, 30s navigation timeout
+- **Enhanced Error Recovery**: Graceful fallback mechanisms and mixed content handling
+- **Video Recording**: Automatic failure evidence recording with organized storage
 
 ### Test Artifacts Generated:
-- **Videos**: Saved in `Evidence/video/` (WebM format, 1280x720 resolution)
-- **Screenshots**: Saved in `Evidence/screenshots/` with automatic fallback
-- **Allure Reports**: Available via `npm run report` or `npm run report:open`
-- **Error Context**: Detailed failure information in error-context.md files
+- **Videos**: Saved in timestamped `Evidence/test-run-YYYY-MM-DD_HH-MM-SS/videos/`
+- **Screenshots**: Saved in organized `Evidence/test-run-YYYY-MM-DD_HH-MM-SS/screenshots/`
+- **Allure Reports**: Rich HTML reports with visual evidence
+- **Performance Metrics**: Page load time categorization and analysis
 
 ---
 

@@ -2,12 +2,14 @@ import { test as base } from '@playwright/test';
 import { HomePage } from '../page-objects/HomePage';
 import { ProductsPage } from '../page-objects/ProductsPage';
 import { SignupPage } from '../page-objects/SignupPage';
+import { LoginPage } from '../page-objects/LoginPage';
 
 // Define the fixtures interface
 type Fixtures = {
     homePage: HomePage;
     productsPage: ProductsPage;
     signupPage: SignupPage;
+    loginPage: LoginPage;
 };
 
 // Create custom test with fixtures
@@ -28,6 +30,12 @@ export const test = base.extend<Fixtures>({
     signupPage: async ({ page }, use) => {
         const signupPage = new SignupPage(page);
         await use(signupPage);
+    },
+
+    // LoginPage fixture
+    loginPage: async ({ page }, use) => {
+        const loginPage = new LoginPage(page);
+        await use(loginPage);
     }
 });
 
