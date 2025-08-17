@@ -36,9 +36,9 @@ test.describe('Signup Page Tests', () => {
             console.log(TestUtils.getVideoRecordingInfo());
         }
 
-        await TestUtils.testStep(page, 'Verify signup page elements are visible', async () => {
+        await TestUtils.testStep('signup-test', 'Verify signup page elements are visible', async () => {
             await signupPage.verifySignupPageIsVisible();
-        }, { screenshot: true });
+        }, page);
     });
 
     test('TC_SIGNUP_002: Successful user registration with valid data', async ({ signupPage, page }, testInfo) => {
@@ -66,18 +66,18 @@ test.describe('Signup Page Tests', () => {
             country: 'United States'
         };
 
-        await TestUtils.testStep(page, 'Fill initial signup form', async () => {
+        await TestUtils.testStep('signup-test', 'Fill initial signup form', async () => {
             await signupPage.fillSignupForm(userData.name, userData.email);
-        }, { screenshot: true });
+        }, page);
 
-        await TestUtils.recordStepEvidence(page, 'Submit initial signup', async () => {
+        await TestUtils.testStep('signup-test', 'Submit initial signup', async () => {
             await signupPage.clickSignupButton();
             await TestUtils.waitForPageReady(page);
             // Critical screenshot - account info page is important verification point
             await TestUtils.takeCriticalScreenshot(page, 'account-info-page');
-        });
+        }, page);
 
-        await TestUtils.testStep(page, 'Complete full signup flow', async () => {
+        await TestUtils.testStep('signup-test', 'Complete full signup flow', async () => {
             try {
                 await signupPage.fillAccountInformation({
                     title: userData.title,
@@ -113,9 +113,9 @@ test.describe('Signup Page Tests', () => {
                 console.log('Error during signup flow, continuing with verification');
                 await TestUtils.takeScreenshot(page, 'signup-flow-error');
             }
-        }, { critical: true });
+        }, page);
 
-        await TestUtils.testStep(page, 'Verify account creation success', async () => {
+        await TestUtils.testStep('signup-test', 'Verify account creation success', async () => {
             try {
                 await signupPage.verifyAccountCreated();
                 await TestUtils.takeScreenshot(page, 'signup-success-verified');
@@ -123,7 +123,7 @@ test.describe('Signup Page Tests', () => {
                 console.log('Account created verification failed, checking for alternative success indicators');
                 await TestUtils.takeScreenshot(page, 'signup-verification-alternative');
             }
-        }, { critical: true });
+        }, page);
     });
 
     test('TC_SIGNUP_003: Signup with existing email address', async ({ signupPage, page }) => {
@@ -136,14 +136,14 @@ test.describe('Signup Page Tests', () => {
         const existingEmail = 'test@example.com';
         const userName = `TestUser${uniqueId}`;
 
-        await TestUtils.recordStepEvidence(page, 'Attempt signup with existing email', async () => {
+        await TestUtils.testStep('signup-test', 'Attempt signup with existing email', async () => {
             await signupPage.fillSignupForm(userName, existingEmail);
             await TestUtils.takeScreenshot(page, 'existing-email-form-filled');
             await signupPage.clickSignupButton();
             await TestUtils.waitForPageReady(page);
-        });
+        }, page);
 
-        await TestUtils.testStep(page, 'Verify error message for existing email', async () => {
+        await TestUtils.testStep('signup-test', 'Verify error message for existing email', async () => {
             try {
                 await signupPage.verifyEmailAlreadyExistsError();
                 await TestUtils.takeScreenshot(page, 'existing-email-error-verified');
@@ -152,7 +152,7 @@ test.describe('Signup Page Tests', () => {
                 await TestUtils.takeScreenshot(page, 'existing-email-general-error');
                 await signupPage.verifySignupError();
             }
-        }, { critical: true });
+        }, page);
     });
 
     test('TC_SIGNUP_004: Signup with empty required fields', async ({ signupPage, page }) => {
@@ -202,7 +202,7 @@ test.describe('Signup Page Tests', () => {
                         console.log(`Email validation caught: ${validationMessage}`);
                     } else {
                         await signupPage.clickSignupButton();
-                        await TestUtils.waitForPageReady(page, 10000);
+                        await TestUtils.waitForPageReady(page, { timeout: 10000 });
                         await TestUtils.takeScreenshot(page, `invalid-email-submitted-${invalidEmail.replace(/[^a-zA-Z0-9]/g, '_')}`);
                     }
                 } catch (error) {

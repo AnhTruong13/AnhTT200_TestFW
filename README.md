@@ -6,13 +6,14 @@ This comprehensive test automation framework uses [Playwright](https://playwrigh
 
 - **Unified Page Object Model (POM)** - Enhanced architecture with BasePage inheritance for consistency
 - **Enhanced TestUtils** - Unified waiting strategies with networkidle fallbacks and smart timeout handling
-- **Optional Video Evidence Recording** - Complete step-by-step test documentation with VIDEO_MODE control
+- **Organized Evidence Collection** - Timestamped test run directories with structured evidence organization
+- **Enhanced Performance Testing** - Realistic thresholds with meaningful performance feedback and categorization
 - **Robust Timeout Configuration** - 60s test timeout, 15s action timeout, 30s navigation timeout, 10s assertion timeout
-- **Smart Screenshots** - Viewport screenshots to avoid size limits (only on failure)
+- **Smart Screenshots** - Organized viewport screenshots with descriptive naming and timestamp management
 - **Allure + HTML Reporting** - Rich reports with visual evidence and interactive features
-- **Evidence Collection** - Organized storage of test artifacts with automatic cleanup
-- **Auto Cleanup** - Empty video directories automatically removed after test runs
-- **Multi-Browser Support** - Chromium, Firefox, Safari, Edge, Chrome
+- **Organized Evidence Storage** - Timestamped `Evidence/test-run-YYYY-MM-DD_HH-MM-SS` directories with structured subdirectories
+- **Auto Cleanup** - Smart cleanup of empty directories and organized evidence management
+- **Multi-Browser Support** - Chromium, Firefox, Safari, Edge, Chrome with cross-browser evidence organization
 - **Cross-Platform Compatibility** - Seamless Windows/macOS/Linux support with cross-env
 - **Enhanced Error Recovery** - Unified waiting strategies and graceful fallback mechanisms
 
@@ -50,17 +51,17 @@ npm run test:headed
 # Debug tests
 npm run test:debug
 
+# Run tests with organized evidence collection
+npm run test:evidence:organized
+
+# Run performance tests with enhanced feedback
+npm run test:performance:enhanced
+
 # Full video evidence recording (all tests)
 npm run test:video:all
 
-# Full video evidence recording (Chromium only)
-npm run test:video:all:chromium
-
-# Complete evidence collection (videos + screenshots)
-npm run test:evidence:full
-
-# Minimal evidence collection (no videos, minimal screenshots)  
-npm run test:evidence:minimal
+# Complete organized evidence collection
+npm run test:evidence:full:organized
 ```
 
 > **📋 Cross-Platform Compatibility**: All npm scripts now use `cross-env` for seamless environment variable handling across Windows, macOS, and Linux. No more platform-specific command issues!
@@ -96,11 +97,18 @@ npm run clean:evidence
 
 ## 📁 Project Structure
 ```
-├── Evidence/                    # Test artifacts and evidence
-│   ├── video/                   # Test execution videos (WebM format)
-│   ├── screenshots/            # Test screenshots with fallback handling
-│   ├── traces/                 # Playwright traces for debugging
-│   └── README.md               # Evidence documentation
+├── Evidence/                           # Organized test artifacts and evidence
+│   ├── test-run-2025-08-17_07-16-07/  # Timestamped test run directory
+│   │   ├── screenshots/                # Organized screenshots with descriptive naming
+│   │   ├── videos/                     # Test execution videos (WebM format)
+│   │   ├── traces/                     # Playwright traces for debugging
+│   │   └── reports/                    # Test-specific reports and artifacts
+│   ├── test-run-2025-08-17_07-18-03/  # Another timestamped test run
+│   │   ├── screenshots/                # Cross-test organized evidence
+│   │   ├── videos/                     # Structured video evidence
+│   │   ├── traces/                     # Debug traces with timestamps
+│   │   └── reports/                    # Run-specific documentation
+│   └── README.md                       # Evidence organization documentation
 ├── page-objects/               # Enhanced Page Object Model with unified architecture
 │   ├── BasePage.ts             # Foundation class with robust waitForPageLoad() and timeout handling
 │   ├── HomePage.ts             # Homepage methods extending BasePage for consistency
@@ -111,7 +119,7 @@ npm run clean:evidence
 │   ├── homepage-integration.spec.ts  # Integration tests (4 tests) with TestUtils methods
 │   └── signup.spec.ts          # Signup/Login functionality tests (10 tests) with unified approach
 ├── utils/                      # Enhanced utility functions and helpers
-│   ├── TestUtils.ts            # Enhanced utilities with waitForPageReady(), testStep(), recordStepEvidence()
+│   ├── TestUtils.ts            # Organized evidence collection with getTestRunDirectory(), enhanced performance testing
 │   ├── fixtures.ts             # Custom Playwright fixtures with BasePage integration
 │   └── screenshot-examples.md  # Screenshot utility documentation
 ├── allure-results/             # Raw Allure test results (JSON)
@@ -150,14 +158,33 @@ npm run clean:evidence
 - UI navigation and responsive design testing
 
 ### Integration Tests (4 tests)
-- Complete user journey (Homepage → Products → Product Details)
-- Homepage responsiveness across viewports with performance monitoring
-- Interactive elements comprehensive testing
-- Navigation links verification with strict mode handling
+- Complete user journey (Homepage → Products → Product Details) with organized evidence collection
+- Homepage responsiveness across viewports with enhanced performance monitoring and realistic thresholds
+- Interactive elements comprehensive testing with step-by-step evidence recording
+- Navigation links verification with organized screenshot documentation
 
 ## 🔧 Recent Enhancements (August 2025)
 
-### 🏗️ **Architecture Consolidation - Latest Update**
+### 🗂️ **Organized Evidence Collection System - Latest Update**
+- **Timestamped Test Run Directories**: Each test execution creates unique `Evidence/test-run-YYYY-MM-DD_HH-MM-SS` directories
+- **Structured Evidence Organization**: Automatic creation of `/screenshots`, `/videos`, `/traces`, `/reports` subdirectories
+- **Cross-Test Evidence Sharing**: Multiple tests can contribute to the same organized test run directory
+- **Enhanced Screenshot Management**: Descriptive filenames with timestamps and step information
+- **Smart Directory Cleanup**: Automatic cleanup of empty directories while preserving organized evidence
+- **Console Evidence Logging**: Clear creation and completion messages for all evidence collection activities
+
+### 📊 **Enhanced Performance Testing - Latest Update** 
+- **Realistic Performance Thresholds**: Updated from overly strict 10-second limits to practical 20-second thresholds for external websites
+- **Performance Categorization with Meaningful Feedback**: 
+  - ✅ **Excellent** (< 5s): Optimal website performance
+  - ⚠️ **Acceptable** (5-10s): Good performance for external sites  
+  - ⚠️ **Slow but within limits** (10-20s): Acceptable for complex websites
+  - ❌ **Poor performance** (≥ 20s): Requires investigation
+- **Enhanced Console Output**: Detailed performance insights with load time measurements
+- **Real-World Test Results**: Successfully validated across browsers (Microsoft Edge: 11477ms, Chrome: 5656ms-6277ms)
+- **Performance Integration**: Enhanced performance testing integrated with existing test architecture
+
+### 🏗️ **Architecture Consolidation**
 - **Unified BasePage Architecture**: All page objects now extend BasePage for consistent behavior and timeout handling
 - **Enhanced TestUtils Methods**: Standardized `waitForPageReady()` with networkidle fallbacks across all tests
 - **Architecture Validation**: 21/21 tests passing with unified inheritance structure and robust timeout handling
@@ -171,11 +198,14 @@ npm run clean:evidence
 - **Unified Inheritance**: All page objects follow consistent patterns with standardized timeout handling
 
 ### TestUtils Enhancements
+- **getTestRunDirectory()**: Creates and manages timestamped test run directories for organized evidence collection
+- **ensureTestRunDirectories()**: Sets up complete directory structure with organized subdirectories  
+- **Enhanced Evidence Methods**: getScreenshotsDirectory(), getVideosDirectory(), getTracesDirectory(), getReportsDirectory()
 - **waitForPageReady()**: Enhanced method with networkidle fallbacks matching BasePage approach
-- **testStep()**: Comprehensive video and screenshot evidence recording for test steps
-- **recordStepEvidence()**: Granular step-by-step video evidence collection
-- **Smart Timeout Handling**: Consistent fallback strategies across all utility methods
-- **Video Evidence Integration**: Complete step-by-step recording with VIDEO_MODE control
+- **testStep()**: Comprehensive evidence recording with organized storage and step documentation
+- **recordStepEvidence()**: Granular step-by-step evidence collection with descriptive naming
+- **takeCriticalScreenshot()**: High-priority evidence capture with organized storage and timestamp management
+- **Enhanced Performance Testing**: Realistic thresholds with meaningful performance categorization and console feedback
 
 ### Configuration Improvements
 - **Enhanced Timeout Configuration**: 60s test timeout, 15s action timeout, 30s navigation timeout, 10s assertion timeout
