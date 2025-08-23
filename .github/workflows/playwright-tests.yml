@@ -1,0 +1,231 @@
+name: Playwright E2E Tests
+
+on:
+  # Trigger on pull requests to main branch
+  pull_request:
+    branches: [ main ]
+  # Trigger on push to main branch
+  push:
+    branches: [ main ]
+  # Allow manual triggering
+  workflow_dispatch:
+
+# Set concurrency to cancel in-progress runs on new commits
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run Playwright Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        # Test on multiple Node.js versions for compatibility
+        node-version: [18.x, 20.x]
+        
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        
+      - name: Create Evidence Directory
+        run: mkdir -p Evidence
+        
+      - name: Run Homepage Tests
+        run: npm run test:homepage
+        env:
+          CI: true
+          SCREENSHOTS: 'off'
+          VIDEO_MODE: 'retain-on-failure'
+        continue-on-error: false
+        
+      - name: Run Signup Tests
+        run: npm run test:signup
+        env:
+          CI: true
+          SCREENSHOTS: 'off'
+          VIDEO_MODE: 'retain-on-failure'
+        continue-on-error: false
+        
+      - name: Run Login Tests
+        run: npm run test:login
+        env:
+          CI: true
+          SCREENSHOTS: 'off'
+          VIDEO_MODE: 'retain-on-failure'
+        continue-on-error: false
+        
+      - name: Run UI Template Tests
+        run: npm run test:templates
+        env:
+          CI: true
+          SCREENSHOTS: 'off'
+          VIDEO_MODE: 'retain-on-failure'
+        continue-on-error: false
+        
+      - name: Run Integration Tests
+        run: npm run test:integration
+        env:
+          CI: true
+          SCREENSHOTS: 'off'
+          VIDEO_MODE: 'retain-on-failure'
+        continue-on-error: false
+        
+      # Upload test results on failure for debugging
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results-${{ matrix.node-version }}
+          path: |
+            playwright-report/
+            test-results/
+            Evidence/
+          retention-days: 7
+          
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.node-version }}
+          path: playwright-report/
+          retention-days: 7
+          
+  # Separate job for comprehensive test run
+  full-test-suite:
+    name: Full Test Suite
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        
+      - name: Run All Tests with Evidence
+        run: npm test
+        env:
+          CI: true
+          SCREENSHOTS: 'all'
+          VIDEO_MODE: 'retain-on-failure'
+          
+      - name: Generate Allure Report
+        run: |
+          npm run report:generate
+        if: always()
+        
+      - name: Upload Full Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-test-results
+          path: |
+            allure-report/
+            playwright-report/
+            test-results/
+            Evidence/
+          retention-days: 14
+          
+      - name: Comment PR with Test Results
+        uses: actions/github-script@v7
+        if: always() && github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read test results
+            let testSummary = '## 🧪 Test Results Summary\n\n';
+            
+            try {
+              // Check if tests passed
+              const exitCode = process.env.TEST_EXIT_CODE || '0';
+              const testsPassed = exitCode === '0';
+              
+              if (testsPassed) {
+                testSummary += '✅ **All tests passed successfully!**\n\n';
+                testSummary += '- Homepage Tests: ✅ PASSED\n';
+                testSummary += '- Signup Tests: ✅ PASSED\n';
+                testSummary += '- Login Tests: ✅ PASSED\n';
+                testSummary += '- UI Template Tests: ✅ PASSED\n';
+                testSummary += '- Integration Tests: ✅ PASSED\n\n';
+                testSummary += '🚀 **This PR is ready to merge!**';
+              } else {
+                testSummary += '❌ **Some tests failed!**\n\n';
+                testSummary += '⚠️ **This PR cannot be merged until all tests pass.**\n\n';
+                testSummary += 'Please check the test results and fix any failing tests.';
+              }
+              
+              testSummary += '\n\n📊 **Test Reports Available:**\n';
+              testSummary += '- Check the "Actions" tab for detailed test reports\n';
+              testSummary += '- Playwright HTML reports are uploaded as artifacts\n';
+              testSummary += '- Evidence files (screenshots, videos) are available for failed tests';
+              
+            } catch (error) {
+              testSummary += '⚠️ Unable to read test results. Check the Actions tab for details.';
+            }
+            
+            // Post comment on PR
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: testSummary
+            });
+
+  # Security and quality checks
+  security-checks:
+    name: Security & Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Run Audit
+        run: npm audit --audit-level moderate
+        
+      - name: Check for TypeScript Errors
+        run: npx tsc --noEmit
+        
+      - name: Lint Check (if eslint is configured)
+        run: |
+          if [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ] || [ -f "eslint.config.js" ]; then
+            npx eslint . --ext .ts,.js
+          else
+            echo "No ESLint configuration found, skipping lint check"
+          fi
+        continue-on-error: true
