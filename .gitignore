@@ -6,14 +6,30 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
-# Allure
+# Allure Reports and Results
 /allure-results/
 /allure-report/
 
-# Evidence and Test Artifacts
-/Evidence/video/
-/Evidence/screenshots/
-/Evidence/traces/
+# Evidence Directory (all contents)
+/Evidence/
+
+# Test Results and Reports
+/test-results/
+/playwright-report/
+/temp/
+
+# Test Artifacts
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webm
+*.mp4
+*.mov
+*.zip
+*.har
+*.json.gz
+*.trace
 
 # Temporary files
 *.log
